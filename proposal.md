@@ -5,13 +5,9 @@ in New York
 ### Authors
 
 - Ainsel Levitskaia-Collins (HL2710)
-
 - Alissa Shams Orchi (AO2965)
-
 - Kino Watanabe (KW3180)
-
 - Miho Kawanami (MK4996)
-
 - Te-Hsuan Huang (TH3147)
 
 ### Project Motivation
