@@ -12,7 +12,7 @@ in New York
 
 - Miho Kawanami (MK4996)
 
-- Te Hsuan Huang (TH3147)
+- Te-Hsuan Huang (TH3147)
 
 ### Project Motivation
 
@@ -33,14 +33,14 @@ combining and comparing the results of these five analyses.
 
 ### Anticipated Data Sources
 
+- [Gun shooting data by year (historic,
+  2006-2024)](https://data.cityofnewyork.us/Public-Safety/NYPD-Shooting-Incident-Data-Year-To-Date-/5ucz-vwe8/about_data)
+- [Gun shooting data in
+  2025](https://data.cityofnewyork.us/Public-Safety/NYPD-Shooting-Incident-Data-Historic-/833y-fsy8/about_data)
 - [Social
   conditions](https://a816-dohbesp.nyc.gov/IndicatorPublic/data-explorer/social-conditions/?id=2317#display=summary)
 - [American community
   survey](https://data.census.gov/all?q=American+Community+Survey)
-- [Gun shooting data by year (historic,
-  2006-2024)](https://data.cityofnewyork.us/Public-Safety/NYPD-Shooting-Incident-Data-Year-To-Date-/5ucz-vwe8/about_data)
-- [Gun shooting data
-  2025](https://data.cityofnewyork.us/Public-Safety/NYPD-Shooting-Incident-Data-Historic-/833y-fsy8/about_data)
 - [Street lights
   data](https://data.cityofnewyork.us/Transportation/DOT-Street-Lights-and-Traffic-Signals-311-Service-/jwvp-gyiq)
 - [Weather data](https://www.ncdc.noaa.gov/cdo-web/search)
@@ -57,7 +57,7 @@ combining and comparing the results of these five analyses.
 - Street light/lighting in the area, time of day
 - Weather/time of year (seasonality)
   - Holidays/day of week
-  - focus on COVID-19’s influence (1/20/2020 first case in USA)
+  - Focus on COVID-19’s influence (1/20/2020 first case in USA)
 - Location (zip code / neighborhood / boro)
 - Victim gender
 
@@ -77,10 +77,9 @@ combining and comparing the results of these five analyses.
 
 #### Visualizations
 
-- Maps comparing locational information, using latitudinal/longitudinal
-  information
-- Other visualizations identified and applied as appropriate throughout
-  the analysis process
+Generate maps that compare spatial patterns using latitude and longitude
+data, in combination with other critical factors, to determine which
+factors have the most significant influence.
 
 #### Coding Challenges
 
