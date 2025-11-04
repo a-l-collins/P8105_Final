@@ -1,4 +1,5 @@
-Gun Violence in New York City
+Unmasking Variables: A Descriptive Analysis of Gun Violence Correlates
+in New York
 ================
 Ainsel Levitskaia-Collins (HL2710), Alissa Shams Orchi (AO2965), Kino
 Watanabe (KW3180), Miho Kawanami (MK4996), Te Hsuan Huang (TH3147)

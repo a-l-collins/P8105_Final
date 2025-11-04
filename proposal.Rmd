@@ -1,5 +1,5 @@
 ---
-title: "Gun Violence in New York City"
+title: "Unmasking Variables: A Descriptive Analysis of Gun Violence Correlates in New York"
 author: "Ainsel Levitskaia-Collins (HL2710), Alissa Shams Orchi (AO2965), Kino Watanabe (KW3180), Miho Kawanami (MK4996), Te Hsuan Huang (TH3147)"
 date: "2025-11-04"
 output: github_document
