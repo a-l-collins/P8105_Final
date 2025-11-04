@@ -1,7 +1,87 @@
-Proposal
+Gun Violence in New York City
 ================
 Ainsel Levitskaia-Collins (HL2710), Alissa Shams Orchi (AO2965), Kino
-Watanabe (KW3180), Te Hsuan Huang (th3147)
+Watanabe (KW3180), Miho Kawanami (MK4996), Te Hsuan Huang (TH3147)
 2025-11-04
 
-Proposal doc
+### Project Motivation
+
+Gun violence is a persistent public health crisis in the United States.
+In New York City, for example, we had the [Midtown Manhattan mass
+shooting](https://www.cnn.com/2025/08/03/us/manhattan-shooting-timeline-911-calls)
+in July 2025. It showed us that even our busiest, most protected
+neighborhoods are impacted by gun violence. We would like to perform a
+descriptive exploration of socioeconomic, geographic, and temporal
+factors that are potentially positively or negatively associated with
+firearm shootings.
+
+### Intended Final Products
+
+Five separate analyses into the factors (see planned analyses) that
+contribute to gun violence within New York City, and one summary report
+combining and comparing the results of these five analyses.
+
+### Anticipated Data Sources
+
+- [Social
+  conditions](https://a816-dohbesp.nyc.gov/IndicatorPublic/data-explorer/social-conditions/?id=2317#display=summary)
+- [American community
+  survey](https://data.census.gov/all?q=American+Community+Survey)
+- [Gun shooting data by year (historic,
+  2006-2024)](https://data.cityofnewyork.us/Public-Safety/NYPD-Shooting-Incident-Data-Year-To-Date-/5ucz-vwe8/about_data)
+- [Gun shooting data
+  2025](https://data.cityofnewyork.us/Public-Safety/NYPD-Shooting-Incident-Data-Historic-/833y-fsy8/about_data)
+- [Street lights
+  data](https://data.cityofnewyork.us/Transportation/DOT-Street-Lights-and-Traffic-Signals-311-Service-/jwvp-gyiq)
+- [Weather data](https://www.ncdc.noaa.gov/cdo-web/search)
+- [Holiday data](https://www.redcort.com/us-federal-bank-holidays)
+
+### The planned analyses / visualizations / coding challenges
+
+#### Exposures under consideration
+
+- Social conditions treated as a confounder to the data and
+  characterized by open green spaces within each studied region
+  (boro/neighborhood/zip code/etc)
+- Street light/lighting in the area, time of day
+- Weather/time of year (seasonality)
+  - Holidays/day of week
+  - focus on COVID-19’s influence (1/20/2020 first case in USA)
+- Location (zip code / neighborhood / boro)
+- Victim gender
+
+##### Other preliminary analyses that may be done
+
+- By precinct
+- By boro – compare base numbers vs rate by population size
+- Inside vs outside
+- By location classification
+- By latitude/longitude
+- Murder flag
+- By time (day/morning/etc)
+- Holidays
+- Seasonality
+- Weather
+- Other demographic info
+
+#### Visualizations
+
+- Maps comparing locational information, using latitudinal/longitudinal
+  information
+- Other visualizations identified and applied as appropriate throughout
+  the analysis process
+
+#### Coding Challenges
+
+Handling missing or inconsistent data across multiple sources might be
+challenging.
+
+### The planned timeline
+
+- Nov 7: submit proposal
+- Nov 10-14: project review meeting
+- Nov 21: group check-in on analysis progress
+- Nov 26 or 28: finish all analyses, start putting together the group
+  report
+- Dec 2-4: finalize project state so the video can be recorded
+- Dec 6: project due
