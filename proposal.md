@@ -1,9 +1,18 @@
 Unmasking Variables: A Descriptive Analysis of Gun Violence Correlates
 in New York
 ================
-Ainsel Levitskaia-Collins (HL2710), Alissa Shams Orchi (AO2965), Kino
-Watanabe (KW3180), Miho Kawanami (MK4996), Te Hsuan Huang (TH3147)
-2025-11-04
+
+### Authors
+
+- Ainsel Levitskaia-Collins (HL2710)
+
+- Alissa Shams Orchi (AO2965)
+
+- Kino Watanabe (KW3180)
+
+- Miho Kawanami (MK4996)
+
+- Te Hsuan Huang (TH3147)
 
 ### Project Motivation
 
@@ -36,6 +45,7 @@ combining and comparing the results of these five analyses.
   data](https://data.cityofnewyork.us/Transportation/DOT-Street-Lights-and-Traffic-Signals-311-Service-/jwvp-gyiq)
 - [Weather data](https://www.ncdc.noaa.gov/cdo-web/search)
 - [Holiday data](https://www.redcort.com/us-federal-bank-holidays)
+- [Green space](https://www.nycgovparks.org/about/data)
 
 ### The planned analyses / visualizations / coding challenges
 
