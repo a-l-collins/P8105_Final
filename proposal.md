@@ -48,13 +48,25 @@ combining and comparing the results of these five analyses.
 #### Outcome: gun violence, characterized by shooting incidents
 
 - Multiple years available (2006-2025)
+- We intend to both analyze a longitudinal outcome of a range of years
+  based on available data, and a cross-sectional outcome of 2025
+  specifically.
 
 #### Exposures under consideration
 
+- Gun violence
+  - operationalized as occurrences of shootings reported by the NYPD
+- Street light/lighting in the area, time of day
+  - Will be operationalized as poor street lighting determined by street
+    lamp condition
 - Social/environmental conditions dataset
   - Characterize this via public/green spaces (any open green space), as
     opposed to income/SES/etc
-- Street light/lighting in the area, time of day
+  - Green spaces perationalized as parks property managed partially or
+    solely by NYC parks
+  - Neighborhood disadvantage operationalized as low presence of green
+    space and poor distribution of street lamps reported by the
+    Department of Transportation
 - Weather/time of year (seasonality)
   - Holidays/day of week
   - Focus on COVID-19’s influence (1/20/2020 first case in USA)
@@ -70,38 +82,37 @@ combining and comparing the results of these five analyses.
 
 #### Planned analyses:
 
-- **Gun violence is operationalized as occurrences of shootings reported
-  by the NYPD**
-- Initial descriptive analysis: make visualizations of the key variables
-  in “Shooting incident” dataset to discover patterns and potential
-  coding errors
-  - See “Potential preliminary analysis stuff (Shooting incident
-    dataset)” right above
-- Using latitude and longitude data to identify the shooting hotspots
-  - Compare by borough and identify if Manhattan is, indeed, our best
-    option for this analysis
-- **Poor street lighting is operationalized as street lamp condition
-  reported by the Department of Transportation**
-- **Green space is operationalized as parks property managed partially
-  or solely by NYC Parks**
-- Overlay green spaces in Manhattan with location of shooting
-  occurrences
-- Overlay locations of street lamps in Manhattan with location of
-  shooting occurrences
-- Compare/overlay green space and street lamp location to investigate if
-  areas with low green space and poor lighting are associated with
-  increased gun shooting incidents
-  - **Neighborhood disadvantage is operationalized as low presence of
-    green space and poor distribution of street lamps**
-- Identify if there are any patterns of victim demographics within each
-  neighborhood
-- Identify trends of gun violence over time
+- **Locational gun violence**
+  - Analyze locational data as discussed in exposures
+  - Initial descriptive analysis: make visualizations of the key
+    variables in “Shooting incident” dataset to discover patterns and
+    potential coding errors
+  - Using latitude and longitude data to identify the shooting hotspots
+    - Compare by borough and identify if Manhattan is, indeed, our best
+      option for this analysis
+    - If Manhattan is not the best option, determine which borough would
+      be best, or if a full-city analysis would be better
+  - Create locational shooting occurrence plots to be used in other
+    analyses
+- **Neighborhood disadvantage compared to gun violence**
+  - Neighborhood disadvantage operationalized as discussed in exposures
+  - Overlay green spaces in chosen borough with location of shooting
+    occurrences
+  - Overlay locations of street lamps in chosen borough with location of
+    shooting occurrences
+  - Compare/overlay green space and street lamp location to investigate
+    if areas with low green space and poor lighting are associated with
+    increased gun shooting incidents
+- **Trends of gun violence over time**
   - Weather
   - Time of year (seasonality)
   - Holidays
   - Day of week
   - Time (hour; day/morning/etc)
   - Focus on COVID-19’s influence (1/20/2020 first case in USA)
+- **Patterns of victim demographics within each neighborhood**
+  - Victim gender
+  - Murder flag
 
 #### Visualizations
 
