@@ -1,0 +1,54 @@
+---
+title: "Interactive mapping"
+author: "Te-Hsuan Huang"
+date: "2025-11-11"
+output: html_document
+---
+
+# Note:
+**Since we are drawing the interactive plot on the html file, so we cannot change above output**
+
+# Step1: Downlaod the library
+install.packages(c("tidycensus", "tidyverse", "sf", "mapview"))
+**Please run the above code if you do this map at the first time**
+```{r}
+library(tidyverse)
+library(tidycensus)
+library(sf)
+library(mapview)
+```
+
+# Step2: Get an API Key
+Set the Key: Set your key using the census_api_key() function so R can securely access the data. You only need to do this once per device using install = TRUE.
+
+**census_api_key("YOUR_KEY_HERE", install = TRUE)**
+**Please run the above line one time**
+
+# Step 3: Interactive map
+```{r}
+nyc_counties <- c("061", "005", "081", "047", "085") # NY, Bronx, Queens, Kings, Richmond
+total_pop_var <- "B01003_001" # Total Population (Estimate)
+
+# 4. Download Total Population Data with Geometry
+nyc_pop_data <- get_acs(
+  geography = "tract",
+  variables = total_pop_var,
+  state = "NY",
+  county = nyc_counties,
+  geometry = TRUE,
+  year = 2023 # Use a recent ACS 5-year estimate
+)
+
+# 5. Create the Interactive Map
+# zcol specifies the column to shade the map by (the estimate for total population)
+mapview(
+  nyc_pop_data, 
+  zcol = "estimate", 
+  legend = TRUE, 
+  layer.name = "Total Population (ACS Est.)",
+  map.types = "CartoDB.Positron" # A clean, simple background map
+)
+```
+
+
+
