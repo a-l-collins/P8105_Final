@@ -20,8 +20,11 @@ library(mapview)
 
 # Step2: Get an API Key
 Set the Key: Set your key using the census_api_key() function so R can securely access the data. You only need to do this once per device using install = TRUE.
+```{r}
+census_api_key("YOUR_KEY_HERE", install = TRUE)
+```
 
-**census_api_key("YOUR_KEY_HERE", install = TRUE)**
+
 **Please run the above line one time**
 
 # Step 3: Interactive map
