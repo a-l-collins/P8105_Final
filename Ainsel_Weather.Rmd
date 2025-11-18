@@ -1,0 +1,29 @@
+---
+title: "ainsel weather"
+author: "Ainsel Levitskaia-Collins, HL2710"
+date: "2025-11-18"
+output: github_document
+---
+
+```{r include = FALSE}
+library(tidyverse)
+```
+
+- [X] find weather data
+- [X] find holiday data
+- [X] import gun data
+- [X] import weather data
+- [ ] import holiday data
+- [ ] tidy datasets
+- [ ] initial analyses
+
+notes:
+
+- make sure to filter shooting data by incident key, to not have unintentional duplicates
+
+```{r message = FALSE}
+shooting_h <- read_csv("./Data Folder/Shooting_Historic.csv")
+shooting_2025 <- read_csv("./Data Folder/Shooting_2025.csv")
+weather <- read_csv("./Data Folder/Weather.csv")
+```
+
