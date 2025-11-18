@@ -16,7 +16,7 @@ output: github_document
 # Ainsel: holidays/timing data
 # Alissa: location data
 # Kino: green spaces, neighborhood advantage/SES
-# Miho: (victim gender, murder flag-- tbd?)
+# Miho: (murder flag, by sex, race-- tbd?)
 # Te Hsuan: street lamps
 ```
 

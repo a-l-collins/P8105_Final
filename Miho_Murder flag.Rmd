@@ -6,6 +6,141 @@ output: html_document
 ---
 
 ```{r}
-
+library(tidyverse)
+library(tidycensus)
+library(sf)
+library(mapview)
 ```
+
+```{r}
+census_api_key("71edc420ec0b86cf5a54c3fc72727f4149467e79")
+```
+
+
+```{r}
+library(tidyverse)
+dat1 = read.csv("./Data Folder/Shooting_Historic.csv")
+dat2 = read.csv("./Data Folder/Shooting_2025.csv")
+
+dat1 = dat1 |>
+  mutate(STATISTICAL_MURDER_FLAG = STATISTICAL_MURDER_FLAG %in% c(TRUE, "true", "True"))
+
+dat2 = dat2 |>
+  mutate(STATISTICAL_MURDER_FLAG = STATISTICAL_MURDER_FLAG %in% c(TRUE, "true", "True"))
+```
+
+## By Each Borough
+```{r}
+dat1_boro = dat1 |>
+  group_by(BORO) |>
+  summarise(
+    n_murder = sum(STATISTICAL_MURDER_FLAG),  
+    n_total = n(),                             
+    prop_murder = n_murder / n_total,
+    .groups = "drop"
+  )
+
+dat1_boro
+```
+
+## Bar chart
+```{r}
+library(ggplot2)
+
+ggplot(dat1_boro,
+       aes(x = reorder(BORO, prop_murder),
+           y = prop_murder)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Proportion of Murder (STATISTICAL_MURDER_FLAG) by Borough",
+    x = "Borough",
+    y = "Proportion Murder Flag"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1))
+```
+
+## Map_ percentage
+
+```{r}
+nyc_boro = tigris::counties(state = "NY", cb = TRUE) |>
+  filter(NAME %in% c("Bronx", "Kings", "New York", "Queens", "Richmond"))
+
+dat1_boro = dat1_boro |>
+  mutate(
+    county_name = case_when(
+      BORO == "MANHATTAN" ~ "New York",
+      BORO == "BROOKLYN" ~ "Kings",
+      BORO == "BRONX" ~ "Bronx",
+      BORO == "QUEENS" ~ "Queens",
+      BORO == "STATEN ISLAND" ~ "Richmond"
+    )
+  )
+
+nyc_boro_map = nyc_boro |>
+  left_join(dat1_boro, by = c("NAME" = "county_name"))
+
+mapview(nyc_boro_map,
+        zcol = "prop_murder",
+        layer.name = "Proportion of Murder by Borough",
+        popup = paste0("Borough: ", nyc_boro_map$BORO,
+                       "<br>Murder proportion: ",
+                       round(nyc_boro_map$prop_murder, 3)))
+```
+
+## map (count)
+
+```{r}
+dat1_boro = dat1 |>
+  group_by(BORO) |>
+  summarise(
+    n_murder = sum(STATISTICAL_MURDER_FLAG),
+    n_total  = n(),
+    .groups = "drop"
+  )
+
+
+dat1_boro <- dat1_boro |>
+  mutate(
+    COUNTY = case_when(
+      BORO == "MANHATTAN" ~ "New York",
+      BORO == "BROOKLYN" ~ "Kings",
+      BORO == "BRONX" ~ "Bronx",
+      BORO == "QUEENS" ~ "Queens",
+      BORO == "STATEN ISLAND" ~ "Richmond"
+    )
+  )
+
+library(tigris)
+options(tigris_progress = FALSE, tigris_use_cache = TRUE)
+
+nyc_boro_map <- counties(state = "NY", cb = TRUE) |>
+  filter(NAME %in% c("Bronx", "Kings", "New York", "Queens", "Richmond"))
+
+nyc_boro_map <- nyc_boro_map |>
+  left_join(dat1_boro, by = c("NAME" = "COUNTY"))
+
+mapview(
+  nyc_boro_map,
+  zcol = "n_murder",
+  layer.name = "Number of Murder Cases by Borough",
+  popup = paste0(
+    "Borough: ", nyc_boro_map$BORO, "<br>",
+    "Number of murder cases: ", nyc_boro_map$n_murder, "<br>",
+    "Total shootings: ", nyc_boro_map$n_total
+  )
+)
+```
+
+```{r}
+dat1_murder = dat1 |>
+  filter(STATISTICAL_MURDER_FLAG)
+
+dat2_murder = dat2 |>
+  filter(STATISTICAL_MURDER_FLAG)
+```
+
+
+
 
