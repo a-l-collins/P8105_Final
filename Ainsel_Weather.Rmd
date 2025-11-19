@@ -9,21 +9,161 @@ output: github_document
 library(tidyverse)
 ```
 
-- [X] find weather data
-- [X] find holiday data
-- [X] import gun data
-- [X] import weather data
-- [ ] import holiday data
-- [ ] tidy datasets
-- [ ] initial analyses
+### Initial Setup
 
-notes:
+Importing Data:
 
-- make sure to filter shooting data by incident key, to not have unintentional duplicates
+```{r message = FALSE, warning = FALSE}
+shooting_h <- read_csv("./Data Folder/Shooting_Historic.csv") %>% 
+  janitor::clean_names()
+
+shooting_2025 <- read_csv("./Data Folder/Shooting_2025.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(statistical_murder_flag = case_match(statistical_murder_flag,
+                                             "N" ~ FALSE,
+                                             "Y" ~ TRUE))
+
+weather <- read_csv("./Data Folder/Weather.csv") %>% 
+  janitor::clean_names()
+
+holidays <- readxl::read_excel("./Data Folder/Holidays.xlsx")
+```
+
+Merge & tidy shooting data:
+
+```{r}
+shooting <- bind_rows(shooting_2025, shooting_h) %>% 
+  separate_wider_delim(occur_date, delim = "/", names_sep = ".") %>% 
+  rename(
+    month = occur_date.1,
+    day = occur_date.2,
+    year = occur_date.3,
+    time = occur_time
+  ) %>% 
+  mutate(
+    month = case_match(month,
+      "01" ~ "January",
+      "02" ~ "February",
+      "03" ~ "March",
+      "04" ~ "April",
+      "05" ~ "May",
+      "06" ~ "June",
+      "07" ~ "July",
+      "08" ~ "August",
+      "09" ~ "September",
+      "10" ~ "October",
+      "11" ~ "November",
+      "12" ~ "December")) %>% 
+  distinct(incident_key, .keep_all = TRUE) %>% 
+  filter(boro == "MANHATTAN")
+```
+
+
+
+### Weather Analysis
+
+Tidy weather data:
+
+```{r}
+weather <- weather %>% 
+  separate_wider_delim(date, delim = "-", names_sep = "_") %>% 
+  rename(
+    year = date_1,
+    month = date_2,
+    day = date_3
+  ) %>% 
+  mutate(
+    month = case_match(month,
+      "01" ~ "January",
+      "02" ~ "February",
+      "03" ~ "March",
+      "04" ~ "April",
+      "05" ~ "May",
+      "06" ~ "June",
+      "07" ~ "July",
+      "08" ~ "August",
+      "09" ~ "September",
+      "10" ~ "October",
+      "11" ~ "November",
+      "12" ~ "December")) %>% 
+  filter(year >= 2006) %>% 
+  select(name, month, day, year, prcp, prcp_attributes, tmax, tmin, latitude, longitude)
+```
+
+Merge with shooting data:
+
+```{r}
+shooting_weather <- left_join(shooting, weather, by = c("month", "day", "year"))
+```
+
+Plot of shootings x precipitation:
+
+- not my favorite plot ever
 
 ```{r message = FALSE}
-shooting_h <- read_csv("./Data Folder/Shooting_Historic.csv")
-shooting_2025 <- read_csv("./Data Folder/Shooting_2025.csv")
-weather <- read_csv("./Data Folder/Weather.csv")
+plot_prcp_hist <- shooting_weather %>% 
+  filter(prcp > 0) %>% 
+  drop_na(loc_of_occur_desc) %>% 
+  ggplot(aes(x = prcp, color = loc_of_occur_desc, fill = loc_of_occur_desc)) +
+  geom_histogram(position = "identity") +
+  theme_minimal() +
+  xlab("Precipitation") +
+  ylab("Shootings Count")
+
+plot_prcp_hist
+```
+
+
+
+### Holiday Analysis
+
+Tidy holiday data:
+
+```{r}
+holidays <- readxl::read_excel("./Data Folder/Holidays.xlsx")
+
+holidays <- holidays %>% 
+  pivot_longer(`2025`:`2006`, names_to = "year", values_to = "date") %>% 
+  separate_wider_delim(date, delim = "/", names_sep = "_") %>% 
+  rename(
+    month = date_1,
+    day = date_2
+  ) %>% 
+  mutate(
+    month = case_match(month,
+      "1" ~ "January",
+      "2" ~ "February",
+      "3" ~ "March",
+      "4" ~ "April",
+      "5" ~ "May",
+      "6" ~ "June",
+      "7" ~ "July",
+      "8" ~ "August",
+      "9" ~ "September",
+      "10" ~ "October",
+      "11" ~ "November",
+      "12" ~ "December")) %>% 
+  mutate(day = as.numeric(day))
+
+# holidays <- holidays %>% 
+  # formatC(day, width = 2, format = "d", flag = "0")
+```
+
+Merge with shooting data:
+
+```{r}
+
+```
+
+Plot of yes vs no holiday:
+
+```{r}
+
+```
+
+Plot of individual holidays vs no holiday:
+
+```{r}
+
 ```
 
