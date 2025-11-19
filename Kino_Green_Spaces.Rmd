@@ -18,7 +18,19 @@ parks_df =
   read_csv("Data Folder/Parks_Properties_Oct2025.csv", na = c("NA", ".", "")) |> 
   janitor::clean_names() |> 
   select(acquisitiondate, borough, zipcode, address, 
-         eapply, location, acres, typecategory, retired)
+         eapply, location, acres, typecategory, retired) |> 
+   mutate(
+    borough = case_when(
+      borough == "B" ~ "Brooklyn",
+      borough == "M" ~ "Manhattan",
+      borough == "Q" ~ "Queens",
+      borough == "R" ~ "Staten Island",
+      borough == "X" ~ "Bronx",
+      TRUE ~ NA_character_
+    )
+  ) |>
+  rename(boro = borough) |> 
+  filter(boro == "Manhattan")
 
 shooting25_df =
   read_csv("Data Folder/Shooting_2025.csv", na = c("NA", ".", "")) |>
