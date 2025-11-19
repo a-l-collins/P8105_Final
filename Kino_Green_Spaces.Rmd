@@ -15,53 +15,98 @@ library(tigris)
 
 ```{r}
 parks_df =
-  read_csv("Data Folder/Parks_Properties_Oct2025.csv")
+  read_csv("Data Folder/Parks_Properties_Oct2025.csv", na = c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  select(acquisitiondate, borough, zipcode, address, 
+         eapply, location, acres, typecategory, retired) |> 
+  rename(boro = borough) |> 
+   mutate(
+      boro = case_when(
+      boro == "B" ~ "Brooklyn",
+      boro == "M" ~ "Manhattan",
+      boro == "Q" ~ "Queens",
+      boro == "R" ~ "Staten Island",
+      boro == "X" ~ "Bronx",
+      TRUE ~ NA_character_
+    ),
+    address = paste(address, "New York, NY", sep = ", ")
+  ) |>
+  filter(boro == "Manhattan") 
+
+census_geo_parks <- 
+  parks_df |> 
+  select(address)
+  
+
 
 shooting25_df =
-  read_csv("Data Folder/Shooting_2025.csv")
+  read_csv("Data Folder/Shooting_2025.csv", na = c("NA", ".", "")) |>
+  janitor::clean_names() |> 
+  distinct(incident_key, .keep_all = TRUE) |> 
+  filter(boro == "MANHATTAN")
+
+
+shooting06_24_df = 
+  read_csv("Data Folder/Shooting_Historic.csv", na = c("NA", ".", "")) |>
+  janitor::clean_names() |> 
+    distinct(incident_key, .keep_all = TRUE) |> 
+     filter(boro == "MANHATTAN")
+
 ```
+
 
 ```{r}
 
+```
 
-# Convert WKT to sf object
-parks_sf <- st_as_sf(parks_df, wkt = "multipolygon", crs = 4326)
+```{r}
+library(tidygeocoder)
+parks_geo <- parks_df |>
+  geocode(address, method = "census", lat = lat, long = lon)
 
-# Get Manhattan tracts (you can add other boroughs if needed)
-manhattan_tracts <- tracts(
+# 2. Remove rows where geocoding failed
+parks_geo_clean <- parks_geo |>
+  filter(!is.na(lat) & !is.na(lon))
+
+# 3. Convert to sf
+parks_sf <- st_as_sf(parks_geo_clean,
+                     coords = c("lon", "lat"),
+                     crs = 4326)
+
+# 4. Load Census tracts for NY
+tracts <- tracts("NY", year = 2023, class = "sf")
+
+# 5. Make sure CRS match
+parks_sf <- st_transform(parks_sf, st_crs(tracts))
+
+# 6. Spatial join to attach GEOID
+parks_with_geoid <- st_join(parks_sf, tracts[, "GEOID"])
+```
+ 
+```{r}
+
+nyc_counties <- c("061", "005", "081", "047", "085") # NY, Bronx, Queens, Kings, Richmond
+total_pop_var <- "B01003_001" # Total Population (Estimate)
+
+# 4. Download Total Population Data with Geometry
+nyc_pop_data <- get_acs(
+  geography = "tract",
+  variables = total_pop_var,
   state = "NY",
-  county = "New York",  # Manhattan
-  year = 2020,
-  cb = TRUE
+  county = nyc_counties,
+  geometry = TRUE,
+  year = 2023 # Use a recent ACS 5-year estimate
 )
 
-# Transform CRS to match
-parks_sf <- st_transform(parks_sf, st_crs(manhattan_tracts))
-
-# Spatial join: assign each park to a tract
-parks_tracts <- st_join(parks_sf, manhattan_tracts, join = st_intersects)
-
-# Summarize number of parks per tract
-parks_per_tract <- parks_tracts %>%
-  st_drop_geometry() %>%
-  group_by(GEOID) %>%
-  summarise(num_parks = n())
-
-# Merge counts with tract shapefile
-manhattan_tracts <- left_join(manhattan_tracts, parks_per_tract, by = "GEOID")
-
-# Map results
-leaflet(manhattan_tracts) %>%
-  addTiles() %>%
-  addPolygons(
-    fillColor = ~colorQuantile("Greens", num_parks)(num_parks),
-    color = "gray", weight = 1,
-    fillOpacity = 0.6,
-    popup = ~paste("GEOID:", GEOID, "<br>Parks:", num_parks)
-  ) %>%
-  addPolygons(data = parks_sf, fill = TRUE, color = "darkgreen", weight = 1, opacity = 0.4)
-
-
+# 5. Create the Interactive Map
+# zcol specifies the column to shade the map by (the estimate for total population)
+mapview(
+  nyc_pop_data, 
+  zcol = "estimate", 
+  legend = TRUE, 
+  layer.name = "Total Population (ACS Est.)",
+  map.types = "CartoDB.Positron" # A clean, simple background map
+)
 
 ```
 
