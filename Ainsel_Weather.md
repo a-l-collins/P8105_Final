@@ -47,7 +47,9 @@ shooting <- bind_rows(shooting_2025, shooting_h) %>%
       "09" ~ "September",
       "10" ~ "October",
       "11" ~ "November",
-      "12" ~ "December")) %>% 
+      "12" ~ "December"),
+    day = as.numeric(day),
+    year = as.numeric(year)) %>% 
   distinct(incident_key, .keep_all = TRUE) %>% 
   filter(boro == "MANHATTAN")
 ```
@@ -77,7 +79,9 @@ weather <- weather %>%
       "09" ~ "September",
       "10" ~ "October",
       "11" ~ "November",
-      "12" ~ "December")) %>% 
+      "12" ~ "December"),
+    day = as.numeric(day),
+    year = as.numeric(year)) %>% 
   filter(year >= 2006) %>% 
   select(name, month, day, year, prcp, prcp_attributes, tmax, tmin, latitude, longitude)
 ```
@@ -85,35 +89,83 @@ weather <- weather %>%
 Merge with shooting data:
 
 ``` r
-shooting_weather <- left_join(shooting, weather, by = c("month", "day", "year"))
+shooting_weather <- full_join(shooting, weather, by = c("month", "day", "year")) %>% 
+  mutate(
+    shooting = incident_key > 0,
+    shooting = case_match(shooting,
+                          TRUE ~ "Incident",
+                          NA ~ "No Incident")
+  )
 ```
 
-Plot of shootings x precipitation:
-
-- not my favorite plot ever
+Plot of max/min temperature and whether there was a shooting:
 
 ``` r
-plot_prcp_hist <- shooting_weather %>% 
-  filter(prcp > 0) %>% 
-  drop_na(loc_of_occur_desc) %>% 
-  ggplot(aes(x = prcp, color = loc_of_occur_desc, fill = loc_of_occur_desc)) +
-  geom_histogram(position = "identity") +
+plot_temp_shooting <- shooting_weather %>% 
+  arrange(desc(shooting)) %>% 
+  ggplot(aes(x = tmin, y = tmax, color = shooting)) +
+  geom_point() +
+  scale_color_manual(values = c("violetred4", "lightsteelblue3")) +
   theme_minimal() +
-  xlab("Precipitation") +
-  ylab("Shootings Count")
+  xlab("Minimum daily temperature (tenths of degrees C)") +
+  ylab("Maximum daily temperature (tenths of degrees C)") +
+  ggtitle("Shooting incidence compared against daily temperature")
 
-plot_prcp_hist
+plot_temp_shooting
 ```
 
 ![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+No visible correlation between temperature and shooting incidence.
+
+Plot of precipitation and whether there was a shooting:
+
+``` r
+plot_prcp_low_shooting <- shooting_weather %>% 
+  filter(prcp < 400) %>% 
+  ggplot(aes(x = prcp, color = shooting, fill = shooting)) + 
+  geom_histogram() +
+  scale_color_manual(values = c("violetred4", "lightsteelblue3")) +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  theme_minimal() +
+  xlab("Precipitation (tenths of mm)") +
+  ylab("") +
+  ggtitle("Shooting count in low precipitation")
+
+plot_prcp_low_shooting
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+plot_prcp_high_shooting <- shooting_weather %>% 
+  filter(prcp > 400) %>% 
+  ggplot(aes(x = prcp, color = shooting, fill = shooting)) + 
+  geom_histogram() +
+  scale_color_manual(values = c("violetred4", "lightsteelblue3")) +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  theme_minimal() +
+  ylab("") +
+  xlab("Precipitation (tenths of mm)") +
+  ggtitle("Shooting count in high precipitation")
+
+plot_prcp_high_shooting
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+There appears to be a higher quantity of shootings during
+lower-precipitation days, however it’s difficult to tell whether this is
+correlative or not.
+
+- [ ] linear regression? to see whether this is a significant
+  relationship
 
 ### Holiday Analysis
 
 Tidy holiday data:
 
 ``` r
-holidays <- readxl::read_excel("./Data Folder/Holidays.xlsx")
-
 holidays <- holidays %>% 
   pivot_longer(`2025`:`2006`, names_to = "year", values_to = "date") %>% 
   separate_wider_delim(date, delim = "/", names_sep = "_") %>% 
@@ -134,15 +186,97 @@ holidays <- holidays %>%
       "9" ~ "September",
       "10" ~ "October",
       "11" ~ "November",
-      "12" ~ "December")) %>% 
-  mutate(day = as.numeric(day))
-
-# holidays <- holidays %>% 
-  # formatC(day, width = 2, format = "d", flag = "0")
+      "12" ~ "December"),
+    day = as.numeric(day),
+    year = as.numeric(year))
 ```
 
 Merge with shooting data:
 
+``` r
+shooting_holidays <- full_join(shooting, holidays, by = c("month", "day", "year")) %>% 
+  mutate(
+    shooting = incident_key > 0,
+    shooting = case_match(shooting,
+                          TRUE ~ "Incident",
+                          NA ~ "No Incident"),
+    holiday_yn = is.na(holiday),
+    holiday_yn = case_match(holiday_yn,
+                            TRUE ~ "No Holiday",
+                            FALSE ~ "Holiday")
+  )
+```
+
 Plot of yes vs no holiday:
 
+- [ ] make plot look better
+
+``` r
+plot_holiday_yn <- shooting_holidays %>% 
+  ggplot(aes(x = holiday_yn, y = shooting)) +
+  geom_bar(stat = "identity", width = 0.5) +
+  theme_minimal()
+
+plot_holiday_yn
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
 Plot of individual holidays vs no holiday:
+
+- [ ] make plot look better
+
+``` r
+plot_holiday_i <- shooting_holidays %>% 
+  ggplot(aes(x = holiday, y = shooting)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  xlab("")
+
+plot_holiday_i
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+It seems that there’s a trend of more shootings happening on non-holiday
+days than on holiday days. Will need to do further testing to confirm
+whether this is a significant association.
+
+- [ ] test the significance of this, ttest for yes/no holiday, unsure
+  for other holidays. linear regression, probably?
+
+### COVID Analysis
+
+Plot of per-year shooting incidence:
+
+``` r
+plot_covid_yearly <- shooting %>% 
+  ggplot(aes(x = year)) +
+  geom_histogram(bins = 19, color = "violetred4", fill = "violetred4") +
+  theme_minimal() +
+  ylab("Number of Shootings") +
+  xlab("Year")
+
+plot_covid_yearly
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+There appears to be a decrease leading to 2020, and then a spike at
+2020.
+
+Create variable for whether or not shooting takes place during COVID-19
+pandemic :
+
+Plot of yes/no COVID-19 shooting (NOT counts):
+
+### Time of Day Analysis
+
+Create variable for day/night:
+
+Plot of day/night shootings:
+
+Plot of shootings per hour of the day:
+
+### Day of Week Analysis
