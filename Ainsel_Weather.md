@@ -89,7 +89,19 @@ weather <- weather %>%
 Merge with shooting data:
 
 ``` r
-shooting_weather <- full_join(shooting, weather, by = c("month", "day", "year")) %>% 
+# OBSOLETE?
+# shooting_weather <- full_join(shooting, weather, by = c("month", "day", "year")) %>% 
+  # mutate(
+    # shooting = incident_key > 0,
+    # shooting = case_match(shooting,
+                          # TRUE ~ "Incident",
+                          # NA ~ "No Incident")
+  # )
+
+weather_shooting <- left_join(weather, shooting, by = c("month", "day", "year")) %>% 
+  group_by(year, month, day) %>% 
+  slice_head() %>% 
+  ungroup() %>% 
   mutate(
     shooting = incident_key > 0,
     shooting = case_match(shooting,
@@ -101,7 +113,7 @@ shooting_weather <- full_join(shooting, weather, by = c("month", "day", "year"))
 Plot of max/min temperature and whether there was a shooting:
 
 ``` r
-plot_temp_shooting <- shooting_weather %>% 
+plot_temp_shooting <- weather_shooting %>% 
   arrange(desc(shooting)) %>% 
   ggplot(aes(x = tmin, y = tmax, color = shooting)) +
   geom_point() +
@@ -118,10 +130,12 @@ plot_temp_shooting
 
 No visible correlation between temperature and shooting incidence.
 
+#### TEST statistical test to confirm this?
+
 Plot of precipitation and whether there was a shooting:
 
 ``` r
-plot_prcp_low_shooting <- shooting_weather %>% 
+plot_prcp_low_shooting <- weather_shooting %>% 
   filter(prcp < 400) %>% 
   ggplot(aes(x = prcp, color = shooting, fill = shooting)) + 
   geom_histogram() +
@@ -138,7 +152,7 @@ plot_prcp_low_shooting
 ![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
-plot_prcp_high_shooting <- shooting_weather %>% 
+plot_prcp_high_shooting <- weather_shooting %>% 
   filter(prcp > 400) %>% 
   ggplot(aes(x = prcp, color = shooting, fill = shooting)) + 
   geom_histogram() +
@@ -158,8 +172,31 @@ There appears to be a higher quantity of shootings during
 lower-precipitation days, however it’s difficult to tell whether this is
 correlative or not.
 
-- [ ] linear regression? to see whether this is a significant
-  relationship
+Plot of yes/no precipitation:
+
+``` r
+plot_prcp_yesno <- weather_shooting %>% 
+  mutate(any_prcp = prcp > 0,
+         any_prcp = case_match(any_prcp,
+                               TRUE ~ "Precipitation",
+                               FALSE ~ "No Precipitation")) %>% 
+  ggplot(aes(x = any_prcp, fill = shooting)) +
+  geom_bar(position = position_dodge()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  xlab("") +
+  ylab("Total Number of Days")
+
+plot_prcp_yesno
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+After converting precipitation to a binary variable, there does not
+appear to be any visible association between whether there was a
+shooting & whether there was any precipitation that day.
+
+#### TEST ttest to confirm lack of association
 
 ### Holiday Analysis
 
@@ -194,57 +231,78 @@ holidays <- holidays %>%
 Merge with shooting data:
 
 ``` r
-shooting_holidays <- full_join(shooting, holidays, by = c("month", "day", "year")) %>% 
+# OBSOLETE?
+# shooting_holidays <- full_join(shooting, holidays, by = c("month", "day", "year")) %>% 
+  # mutate(
+    # shooting = incident_key > 0,
+    # shooting = case_match(shooting,
+                          # TRUE ~ "Incident",
+                          # NA ~ "No Incident"),
+    # holiday_yn = is.na(holiday),
+    # holiday_yn = case_match(holiday_yn,
+                            # TRUE ~ "No Holiday",
+                            # FALSE ~ "Holiday"))
+
+holiday_shooting <- left_join(weather, holidays, by = c("month", "day", "year")) %>% 
+  select(month, day, year, holiday) %>% 
+  mutate(holiday = replace_na(holiday, "No Holiday"))
+
+holiday_shooting <- left_join(holiday_shooting, shooting, by = c("month", "day", "year")) %>% 
+  group_by(year, month, day) %>% 
+  slice_head() %>% 
+  ungroup() %>% 
   mutate(
     shooting = incident_key > 0,
     shooting = case_match(shooting,
                           TRUE ~ "Incident",
                           NA ~ "No Incident"),
-    holiday_yn = is.na(holiday),
+    holiday_yn = holiday != "No Holiday",
     holiday_yn = case_match(holiday_yn,
-                            TRUE ~ "No Holiday",
-                            FALSE ~ "Holiday")
+                            FALSE ~ "No Holiday",
+                            TRUE ~ "Holiday")
   )
 ```
 
 Plot of yes vs no holiday:
 
-- [ ] make plot look better
-
 ``` r
-plot_holiday_yn <- shooting_holidays %>% 
-  ggplot(aes(x = holiday_yn, y = shooting)) +
-  geom_bar(stat = "identity", width = 0.5) +
-  theme_minimal()
+plot_holiday_yn <- holiday_shooting %>% 
+  ggplot(aes(x = holiday_yn, fill = shooting)) +
+  geom_bar(position = position_dodge()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  xlab("") +
+  ylab("Total Number of Days")
 
 plot_holiday_yn
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 Plot of individual holidays vs no holiday:
 
-- [ ] make plot look better
+#### TODO fix order of holiday variables (factor?)
 
 ``` r
-plot_holiday_i <- shooting_holidays %>% 
-  ggplot(aes(x = holiday, y = shooting)) +
-  geom_bar(stat = "identity", width = 0.7) +
+plot_holiday_i <- holiday_shooting %>% 
+  ggplot(aes(x = holiday, fill = shooting)) +
+  geom_bar(position = position_dodge()) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  xlab("")
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  xlab("") +
+  ylab("Total number of days")
 
 plot_holiday_i
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 It seems that there’s a trend of more shootings happening on non-holiday
 days than on holiday days. Will need to do further testing to confirm
 whether this is a significant association.
 
-- [ ] test the significance of this, ttest for yes/no holiday, unsure
-  for other holidays. linear regression, probably?
+#### TEST test the significance of this, ttest for yes/no holiday, unsure for other holidays. linear regression, probably?
 
 ### COVID Analysis
 
@@ -261,13 +319,74 @@ plot_covid_yearly <- shooting %>%
 plot_covid_yearly
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 There appears to be a decrease leading to 2020, and then a spike at
 2020.
 
 Create variable for whether or not shooting takes place during COVID-19
 pandemic :
+
+- Based on WHO dates for when the pandemic began and ended:
+  - March 11, 2020: start of pandemic
+  - May 5, 2023: end of pandemic
+
+#### TODO fix the stupid `case_when` thing
+
+``` r
+# march 11 2020: declared pandemic by WHO
+# may 5 2023: end of pandemic declared by WHO
+
+pandemic_shooting <- left_join(weather, shooting, by = c("month", "day", "year")) %>% 
+  select(-c(name, prcp, prcp_attributes, tmax, tmin, latitude.x, longitude.x)) %>% 
+  group_by(year, month, day) %>% 
+  slice_head() %>% 
+  ungroup() %>% 
+  mutate(
+    shooting = incident_key > 0,
+    shooting = case_match(shooting,
+                          TRUE ~ "Incident",
+                          NA ~ "No Incident"),
+    month = case_match(month,
+                       "January" ~ 1,
+                       "February" ~ 2,
+                       "March" ~ 3,
+                       "April" ~ 4,
+                       "May" ~ 5,
+                       "June" ~ 6,
+                       "July" ~ 7,
+                       "August" ~ 8,
+                       "September" ~ 9,
+                       "October" ~ 10,
+                       "November" ~ 11,
+                       "December" ~ 12),
+    covid = case_when(
+      year = 2021 ~ TRUE,
+      year = 2022 ~ TRUE,
+      year = 2020 & month > 3 ~ TRUE,
+      year = 2020 & month = 3 & day >= 11 ~ TRUE,
+      year = 2023 & month < 5 ~ TRUE,
+      year = 2023 $ month = 5 & day <= 5 ~ TRUE,
+      .default = FALSE
+    ),
+    covid = case_match(covid,
+                       TRUE ~ "During Covid",
+                       FALSE ~ "Not During Covid"),
+    month = case_match(month,
+                       1 ~ "January",
+                       2 ~ "February",
+                       3 ~ "March",
+                       4 ~ "April",
+                       5 ~ "May",
+                       6 ~ "June",
+                       7 ~ "July",
+                       8 ~ "August",
+                       9 ~ "September",
+                       10 ~ "October",
+                       11 ~ "November",
+                       12 ~ "December")
+    )
+```
 
 Plot of yes/no COVID-19 shooting (NOT counts):
 
@@ -280,3 +399,9 @@ Plot of day/night shootings:
 Plot of shootings per hour of the day:
 
 ### Day of Week Analysis
+
+Tidy day of week data:
+
+Plot of all weekdays:
+
+Plot of weekends vs week days:
