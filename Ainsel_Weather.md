@@ -23,6 +23,43 @@ weather <- read_csv("./Data Folder/Weather.csv") %>%
 holidays <- readxl::read_excel("./Data Folder/Holidays.xlsx")
 ```
 
+Daylight hours:
+
+``` r
+url = "https://newyorkcityphotosafari.com/blog/sunrise-sunset-times-in-nyc.html"
+
+daylight <- read_html(url) %>% 
+  html_table() %>% 
+  as.data.frame() %>% 
+  janitor::clean_names() %>% 
+  rename(day = var_1) %>% 
+  pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "time"
+  ) %>% 
+  separate_wider_delim(time, delim = "/", names_sep = "_") %>% 
+  rename(
+    sunrise = time_1,
+    sunset = time_2
+  ) %>% 
+  mutate(
+    month = case_match(month,
+      "jan" ~ "January",
+      "feb" ~ "February",
+      "mar" ~ "March",
+      "apr" ~ "April",
+      "may" ~ "May",
+      "jun" ~ "June",
+      "jul" ~ "July",
+      "aug" ~ "August",
+      "sep" ~ "September",
+      "oct" ~ "October",
+      "nov" ~ "November",
+      "dec" ~ "December")
+    )
+```
+
 Merge & tidy shooting data:
 
 ``` r
@@ -126,7 +163,7 @@ plot_temp_shooting <- weather_shooting %>%
 plot_temp_shooting
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 No visible correlation between temperature and shooting incidence.
 
@@ -149,7 +186,7 @@ plot_prcp_low_shooting <- weather_shooting %>%
 plot_prcp_low_shooting
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 plot_prcp_high_shooting <- weather_shooting %>% 
@@ -166,7 +203,7 @@ plot_prcp_high_shooting <- weather_shooting %>%
 plot_prcp_high_shooting
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
 There appears to be a higher quantity of shootings during
 lower-precipitation days, however it’s difficult to tell whether this is
@@ -190,7 +227,7 @@ plot_prcp_yesno <- weather_shooting %>%
 plot_prcp_yesno
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 After converting precipitation to a binary variable, there does not
 appear to be any visible association between whether there was a
@@ -277,7 +314,7 @@ plot_holiday_yn <- holiday_shooting %>%
 plot_holiday_yn
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 Plot of individual holidays vs no holiday:
 
@@ -296,7 +333,7 @@ plot_holiday_i <- holiday_shooting %>%
 plot_holiday_i
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 It seems that there’s a trend of more shootings happening on non-holiday
 days than on holiday days. Will need to do further testing to confirm
@@ -319,7 +356,7 @@ plot_covid_yearly <- shooting %>%
 plot_covid_yearly
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 There appears to be a decrease leading to 2020, and then a spike at
 2020.
@@ -330,8 +367,6 @@ pandemic :
 - Based on WHO dates for when the pandemic began and ended:
   - March 11, 2020: start of pandemic
   - May 5, 2023: end of pandemic
-
-#### TODO fix the stupid `case_when` thing
 
 ``` r
 # march 11 2020: declared pandemic by WHO
@@ -361,17 +396,16 @@ pandemic_shooting <- left_join(weather, shooting, by = c("month", "day", "year")
                        "November" ~ 11,
                        "December" ~ 12),
     covid = case_when(
-      year = 2021 ~ TRUE,
-      year = 2022 ~ TRUE,
-      year = 2020 & month > 3 ~ TRUE,
-      year = 2020 & month = 3 & day >= 11 ~ TRUE,
-      year = 2023 & month < 5 ~ TRUE,
-      year = 2023 $ month = 5 & day <= 5 ~ TRUE,
-      .default = FALSE
+      year == 2020 & month > 3 ~ TRUE,
+      year == 2020 & month == 3 & day >= 11 ~ TRUE,
+      year == 2021 ~ TRUE,
+      year == 2022 ~ TRUE,
+      year == 2023 & month < 5 ~ TRUE,
+      year == 2023 & month == 5 & day <= 5 ~ TRUE
     ),
     covid = case_match(covid,
                        TRUE ~ "During Covid",
-                       FALSE ~ "Not During Covid"),
+                       NA ~ "Not During Covid"),
     month = case_match(month,
                        1 ~ "January",
                        2 ~ "February",
@@ -388,15 +422,150 @@ pandemic_shooting <- left_join(weather, shooting, by = c("month", "day", "year")
     )
 ```
 
-Plot of yes/no COVID-19 shooting (NOT counts):
+Plot of yes/no COVID-19 shooting:
 
-### Time of Day Analysis
+``` r
+plot_covid_yn <- pandemic_shooting %>% 
+  ggplot(aes(x = covid, fill = shooting)) +
+  geom_bar(position = position_dodge()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  xlab("")
+
+plot_covid_yn
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+On a visual level, there does appear to be a much higher ratio of
+shootings during covid than shootings not during covid.
+
+#### TEST ttest the covid/not covid thing
+
+### Time (of day and of year) Analysis
 
 Create variable for day/night:
 
-Plot of day/night shootings:
+``` r
+daylight_shooting <- left_join(shooting, daylight, by = c("month", "day")) %>%
+  separate_wider_delim(time, delim = ":", names_sep = "_") %>% 
+  separate_wider_delim(sunrise:sunset, delim = ":", names_sep = "_") %>% 
+  rename(
+    hour = time_1,
+    minute = time_2,
+    sunrise_hour = sunrise_1,
+    sunrise_minute = sunrise_2,
+    sunset_hour = sunset_1,
+    sunset_minute = sunset_2
+  ) %>% 
+  select(-time_3) %>% 
+  mutate(
+    hour = as.numeric(hour),
+    minute = as.numeric(minute),
+    
+    sunrise_minute = as.numeric(sunrise_minute),
+    sunrise_hour = as.numeric(sunrise_hour),
+    
+    sunset_minute = na_if(sunset_minute, ""),
+    sunset_minute = as.numeric(sunset_minute),
+    sunset_minute = replace_na(sunset_minute, 0),
+    sunset_hour = as.numeric(sunset_hour),
+    sunset_hour = sunset_hour + 12,
+    
+    daylight = case_when(
+      hour > sunrise_hour & hour < sunset_hour ~ TRUE,
+      hour == sunrise_hour & minute >= sunrise_minute ~ TRUE,
+      hour == sunset_hour & minute <= sunset_minute ~ TRUE
+    ),
+    daylight = case_match(daylight,
+      TRUE ~ "Daytime",
+      NA ~ "Nighttime"
+    )
+  ) %>% 
+  select(incident_key, month, day, year, hour, minute, sunrise_hour, sunrise_minute, sunset_hour, sunset_minute, daylight, everything())
+```
+
+Plot of day/night shootings in general:
+
+``` r
+plot_daylight_yn <- daylight_shooting %>% 
+  ggplot(aes(x = daylight)) +
+  geom_bar(fill = "violetred4", width = 0.5) +
+  theme_minimal() +
+  ylab("Total Number of Shootings") +
+  xlab("") +
+  ggtitle("Count of Daytime vs Nighttime Shootings")
+
+plot_daylight_yn
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+Yeah there definitely seems like there’s more shootings at night vs
+during the day
+
+#### TEST this
 
 Plot of shootings per hour of the day:
+
+``` r
+plot_daylight_hour <- daylight_shooting %>% 
+  ggplot(aes(x = hour)) +
+  geom_bar(fill = "violetred4") +
+  theme_minimal() +
+  xlab("Hour of the Day") +
+  ylab("Number of Shootings") +
+  ggtitle("Count of Shootings per Hour of Day")
+
+plot_daylight_hour
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+#### TEST also this. linear regression? logistic?
+
+Plot of day/night shootings per month:
+
+``` r
+plot_daylight_month_light <- daylight_shooting %>%
+  mutate(
+    month = as.factor(month),
+    month = fct_relevel(month, c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))) %>%
+  ggplot(aes(x = month, fill = daylight)) +
+  geom_bar(position = position_dodge()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("lightsteelblue3", "violetred4")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  xlab("") +
+  ylab("Number of Shootings") +
+  ggtitle("Count of Daytime vs Nighttime Shootings, per Month")
+
+plot_daylight_month_light
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+#### TEST this. somehow. idk. there’s something there lmao
+
+Plot of shootings per month regardless of time:
+
+``` r
+plot_daylight_month <- daylight_shooting %>%
+  mutate(
+    month = as.factor(month),
+    month = fct_relevel(month, c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))) %>%
+  ggplot(aes(x = month)) +
+  geom_bar(fill = "violetred4", width = 0.7) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  xlab("") +
+  ylab("Number of Shootings") +
+  ggtitle("Count of Daytime vs Nighttime Shootings, per Month")
+
+plot_daylight_month
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ### Day of Week Analysis
 
