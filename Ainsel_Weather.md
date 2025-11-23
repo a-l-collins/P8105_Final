@@ -23,43 +23,6 @@ weather <- read_csv("./Data Folder/Weather.csv") %>%
 holidays <- readxl::read_excel("./Data Folder/Holidays.xlsx")
 ```
 
-Daylight hours:
-
-``` r
-url = "https://newyorkcityphotosafari.com/blog/sunrise-sunset-times-in-nyc.html"
-
-daylight <- read_html(url) %>% 
-  html_table() %>% 
-  as.data.frame() %>% 
-  janitor::clean_names() %>% 
-  rename(day = var_1) %>% 
-  pivot_longer(
-    jan:dec,
-    names_to = "month",
-    values_to = "time"
-  ) %>% 
-  separate_wider_delim(time, delim = "/", names_sep = "_") %>% 
-  rename(
-    sunrise = time_1,
-    sunset = time_2
-  ) %>% 
-  mutate(
-    month = case_match(month,
-      "jan" ~ "January",
-      "feb" ~ "February",
-      "mar" ~ "March",
-      "apr" ~ "April",
-      "may" ~ "May",
-      "jun" ~ "June",
-      "jul" ~ "July",
-      "aug" ~ "August",
-      "sep" ~ "September",
-      "oct" ~ "October",
-      "nov" ~ "November",
-      "dec" ~ "December")
-    )
-```
-
 Merge & tidy shooting data:
 
 ``` r
@@ -163,7 +126,7 @@ plot_temp_shooting <- weather_shooting %>%
 plot_temp_shooting
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 No visible correlation between temperature and shooting incidence.
 
@@ -186,7 +149,7 @@ plot_prcp_low_shooting <- weather_shooting %>%
 plot_prcp_low_shooting
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 plot_prcp_high_shooting <- weather_shooting %>% 
@@ -203,7 +166,7 @@ plot_prcp_high_shooting <- weather_shooting %>%
 plot_prcp_high_shooting
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 There appears to be a higher quantity of shootings during
 lower-precipitation days, however it’s difficult to tell whether this is
@@ -227,7 +190,7 @@ plot_prcp_yesno <- weather_shooting %>%
 plot_prcp_yesno
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 After converting precipitation to a binary variable, there does not
 appear to be any visible association between whether there was a
@@ -314,7 +277,7 @@ plot_holiday_yn <- holiday_shooting %>%
 plot_holiday_yn
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 Plot of individual holidays vs no holiday:
 
@@ -333,7 +296,7 @@ plot_holiday_i <- holiday_shooting %>%
 plot_holiday_i
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 It seems that there’s a trend of more shootings happening on non-holiday
 days than on holiday days. Will need to do further testing to confirm
@@ -356,7 +319,7 @@ plot_covid_yearly <- shooting %>%
 plot_covid_yearly
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 There appears to be a decrease leading to 2020, and then a spike at
 2020.
@@ -435,7 +398,7 @@ plot_covid_yn <- pandemic_shooting %>%
 plot_covid_yn
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 On a visual level, there does appear to be a much higher ratio of
 shootings during covid than shootings not during covid.
@@ -443,6 +406,51 @@ shootings during covid than shootings not during covid.
 #### TEST ttest the covid/not covid thing
 
 ### Time (of day and of year) Analysis
+
+Setup:
+
+``` r
+# ran once to pull table from website
+url = "https://newyorkcityphotosafari.com/blog/sunrise-sunset-times-in-nyc.html"
+
+daylight <- read_html(url) %>% 
+  html_table() %>% 
+  as.data.frame() %>% 
+  janitor::clean_names()
+
+write.table(daylight, file = "./Data Folder/Daylight_Hours.txt", quote = F, row.names = F, col.names = T, sep = "\t")
+```
+
+``` r
+# uses the table grabbed above
+daylight <- read.table("./Data Folder/Daylight_Hours.txt", header = T, sep = '\t') %>% 
+  rename(day = var_1) %>% 
+  pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "time"
+  ) %>% 
+  separate_wider_delim(time, delim = "/", names_sep = "_") %>% 
+  rename(
+    sunrise = time_1,
+    sunset = time_2
+  ) %>% 
+  mutate(
+    month = case_match(month,
+      "jan" ~ "January",
+      "feb" ~ "February",
+      "mar" ~ "March",
+      "apr" ~ "April",
+      "may" ~ "May",
+      "jun" ~ "June",
+      "jul" ~ "July",
+      "aug" ~ "August",
+      "sep" ~ "September",
+      "oct" ~ "October",
+      "nov" ~ "November",
+      "dec" ~ "December")
+    )
+```
 
 Create variable for day/night:
 
@@ -499,7 +507,7 @@ plot_daylight_yn <- daylight_shooting %>%
 plot_daylight_yn
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 Yeah there definitely seems like there’s more shootings at night vs
 during the day
@@ -520,7 +528,7 @@ plot_daylight_hour <- daylight_shooting %>%
 plot_daylight_hour
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 #### TEST also this. linear regression? logistic?
 
@@ -543,7 +551,7 @@ plot_daylight_month_light <- daylight_shooting %>%
 plot_daylight_month_light
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 #### TEST this. somehow. idk. there’s something there lmao
 
@@ -565,12 +573,152 @@ plot_daylight_month <- daylight_shooting %>%
 plot_daylight_month
 ```
 
-![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ### Day of Week Analysis
 
-Tidy day of week data:
+Import and Setup Data:
+
+``` r
+#' Read in calendar
+#'
+#' @param year Relevant sheet name
+#' @param range Range for the relevant month
+#'
+#' @returns Formatted month dates for the provided year and month
+read_calendar = function(year, month, range) {
+  sheet_name = as.character(year)
+  range = as.character(range)
+  month = as.character(month)
+  
+  func_cal <- readxl::read_xlsx("./Data Folder/Calendar_AllYears.xlsx", range = range, sheet = sheet_name) %>% 
+    janitor::clean_names() %>% 
+    rename(
+      Sunday = s_1,
+      Monday = m,
+      Tuesday = t_3,
+      Wednesday = w,
+      Thursday = t_5,
+      Friday = f,
+      Saturday = s_7
+    ) %>% 
+    pivot_longer(
+      Sunday:Saturday,
+      names_to = "day_of_week",
+      values_to = "day"
+    ) %>% 
+    drop_na(day) %>% 
+    mutate(
+      month = month,
+      year = year
+    )
+  
+  func_cal
+}
+
+#' Create a yearly calendar
+#'
+#' @param year Relevant sheet name
+#'
+#' @returns Full calendar for the provided year
+create_yearly_calendar = function(year) {
+  year = as.character(year)
+  
+  func_cal <- bind_rows(
+    read_calendar(year = year, month = "January", range = "A3:G9"),
+    read_calendar(year = year, month = "February", range = "I3:O9"),
+    read_calendar(year = year, month = "March", range = "Q3:W9"),
+    read_calendar(year = year, month = "April", range = "A12:G18"),
+    read_calendar(year = year, month = "May", range = "I12:O18"),
+    read_calendar(year = year, month = "June", range = "Q12:W18"),
+    read_calendar(year = year, month = "July", range = "A21:G27"),
+    read_calendar(year = year, month = "August", range = "I21:O27"),
+    read_calendar(year = year, month = "September", range = "Q21:W27"),
+    read_calendar(year = year, month = "October", range = "A30:G36"),
+    read_calendar(year = year, month = "November", range = "I30:O36"),
+    read_calendar(year = year, month = "December", range = "Q30:W36")
+  )
+}
+
+#' Create a calendar with all provided years
+#'
+#' @param year_list Relevant sheet names
+#'
+#' @returns A calendar with all years from indicated sheets
+create_full_calendar = function(year_list) {
+  output <- tibble(
+    day_of_week = NA,
+    day = NA,
+    month = NA,
+    year = NA
+  )
+  
+  for (i in 1:length(year_list)) {
+    output <- bind_rows(
+      output,
+      create_yearly_calendar(year_list[[i]])
+    )
+  }
+  
+  output <- output %>% drop_na(day)
+}
+
+calendar <- create_full_calendar(2006:2025) %>% 
+  mutate(
+    day = as.numeric(day),
+    year = as.numeric(year)
+  )
+```
+
+Merge with Shootings:
+
+``` r
+calendar_shooting <- left_join(shooting, calendar, by = c("month", "day", "year")) %>% 
+  mutate(
+    weekend = case_when(
+      day_of_week == "Sunday" ~ TRUE,
+      day_of_week == "Saturday" ~ TRUE
+    ),
+    weekend = case_match(weekend,
+      TRUE ~ "Weekend",
+      NA ~ "Weekday"
+    ),
+    day_of_week = as.factor(day_of_week),
+    day_of_week = fct_relevel(day_of_week, c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"))
+  )
+```
 
 Plot of all weekdays:
 
+``` r
+plot_calendar_alldays <- calendar_shooting %>% 
+  ggplot(aes(x = day_of_week)) +
+  geom_bar(fill = "violetred4", width = 0.7) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  xlab("") +
+  ylab("Total Number of Shootings") +
+  ggtitle("Total number of shootings per day of the week")
+
+plot_calendar_alldays
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
 Plot of weekends vs week days:
+
+``` r
+plot_calendar_weekend <- calendar_shooting %>% 
+  ggplot(aes(x = weekend)) +
+  geom_bar(fill = "violetred4", width = 0.7) +
+  theme_minimal() +
+  xlab("") +
+  ylab("Total number of shootings") +
+  ggtitle("Total number of shootings per weekday vs weekend")
+
+plot_calendar_weekend
+```
+
+![](Ainsel_Weather_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+#### TEST all days of week individually, as opposed to binary weekend/weekday variable
