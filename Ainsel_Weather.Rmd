@@ -2,20 +2,29 @@
 title: "ainsel weather"
 author: "Ainsel Levitskaia-Collins, HL2710"
 date: "2025-11-18"
-output: github_document
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    
 ---
 
-```{r include = FALSE}
+Social conditions impact whether or not shootings occur, and this can be seen when analyzing *when* the shooting took place-- whether that be hour of the day, day of the week, month of the year, or the year itself.
+
+*some kind of introductory image here*
+
+### **Effect of the time of day**
+
+Do we see more shootings during the day or night, and during which hours of the day?
+
+```{r figures_hour, fig.show='hold', out.width="50%", message = FALSE, warning = FALSE}
+# Code setup, included in this block for brevity
 library(tidyverse)
 library(rvest)
 library(httr)
-```
 
-### Initial Setup
-
-Importing Data:
-
-```{r message = FALSE, warning = FALSE}
+# Importing data:
 shooting_h <- read_csv("./Data Folder/Shooting_Historic.csv") %>% 
   janitor::clean_names()
 
@@ -29,11 +38,8 @@ weather <- read_csv("./Data Folder/Weather.csv") %>%
   janitor::clean_names()
 
 holidays <- readxl::read_excel("./Data Folder/Holidays.xlsx")
-```
 
-Merge & tidy shooting data:
-
-```{r}
+# Merging and tidying shooting data:
 shooting <- bind_rows(shooting_2025, shooting_h) %>% 
   separate_wider_delim(occur_date, delim = "/", names_sep = ".") %>% 
   rename(
@@ -60,350 +66,17 @@ shooting <- bind_rows(shooting_2025, shooting_h) %>%
     year = as.numeric(year)) %>% 
   distinct(incident_key, .keep_all = TRUE) %>% 
   filter(boro == "MANHATTAN")
-```
 
-
-
-### Weather Analysis
-
-Tidy weather data:
-
-```{r}
-weather <- weather %>% 
-  separate_wider_delim(date, delim = "-", names_sep = "_") %>% 
-  rename(
-    year = date_1,
-    month = date_2,
-    day = date_3
-  ) %>% 
-  mutate(
-    month = case_match(month,
-      "01" ~ "January",
-      "02" ~ "February",
-      "03" ~ "March",
-      "04" ~ "April",
-      "05" ~ "May",
-      "06" ~ "June",
-      "07" ~ "July",
-      "08" ~ "August",
-      "09" ~ "September",
-      "10" ~ "October",
-      "11" ~ "November",
-      "12" ~ "December"),
-    day = as.numeric(day),
-    year = as.numeric(year)) %>% 
-  filter(year >= 2006) %>% 
-  select(name, month, day, year, prcp, prcp_attributes, tmax, tmin, latitude, longitude)
-```
-
-Merge with shooting data:
-
-```{r}
-# OBSOLETE?
-# shooting_weather <- full_join(shooting, weather, by = c("month", "day", "year")) %>% 
-  # mutate(
-    # shooting = incident_key > 0,
-    # shooting = case_match(shooting,
-                          # TRUE ~ "Incident",
-                          # NA ~ "No Incident")
-  # )
-
-weather_shooting <- left_join(weather, shooting, by = c("month", "day", "year")) %>% 
-  group_by(year, month, day) %>% 
-  slice_head() %>% 
-  ungroup() %>% 
-  mutate(
-    shooting = incident_key > 0,
-    shooting = case_match(shooting,
-                          TRUE ~ "Incident",
-                          NA ~ "No Incident")
-  )
-```
-
-Plot of max/min temperature and whether there was a shooting:
-
-```{r message = FALSE}
-plot_temp_shoot_hist <- weather_shooting %>% 
-  drop_na(incident_key) %>% 
-  mutate(tmax = tmax / 10) %>% 
-  ggplot(aes(x = tmax)) +
-  geom_histogram(fill = "violetred4") +
-  theme_minimal() +
-  xlab("Maximum daily temperature (C)") +
-  ylab("Total shooting count") +
-  ggtitle("Histogram of total shooting count compared to maximum daily temperature")
-
-plot_temp_shoot_hist
-```
-
-#### TEST compare to the monthly chart, run a test idk
-
-Plot of precipitation and whether there was a shooting:
-
-```{r message = FALSE}
-plot_prcp_low_shooting <- weather_shooting %>% 
-  filter(prcp < 400) %>% 
-  ggplot(aes(x = prcp, color = shooting, fill = shooting)) + 
-  geom_histogram() +
-  scale_color_manual(values = c("violetred4", "lightsteelblue3")) +
-  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
-  theme_minimal() +
-  xlab("Precipitation (tenths of mm)") +
-  ylab("") +
-  ggtitle("HIstogram of shooting count in low precipitation")
-
-plot_prcp_low_shooting
-
-plot_prcp_high_shooting <- weather_shooting %>% 
-  filter(prcp > 400) %>% 
-  ggplot(aes(x = prcp, color = shooting, fill = shooting)) + 
-  geom_histogram() +
-  scale_color_manual(values = c("violetred4", "lightsteelblue3")) +
-  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
-  theme_minimal() +
-  ylab("") +
-  xlab("Precipitation (tenths of mm)") +
-  ggtitle("Histogram of shooting count in high precipitation")
-
-plot_prcp_high_shooting
-```
-
-There appears to be a higher quantity of shootings during lower-precipitation days, however it's difficult to tell whether this is correlative or not. 
-
-Plot of yes/no precipitation:
-
-```{r}
-plot_prcp_yesno <- weather_shooting %>% 
-  mutate(any_prcp = prcp > 0,
-         any_prcp = case_match(any_prcp,
-                               TRUE ~ "Precipitation",
-                               FALSE ~ "No Precipitation")) %>% 
-  ggplot(aes(x = any_prcp, fill = shooting)) +
-  geom_bar(position = position_dodge()) +
-  theme_minimal() +
-  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
-  xlab("") +
-  ylab("Total Number of Days") +
-  ggtitle("Bar plot of shooting incidence in no precipitation vs precipitation")
-
-plot_prcp_yesno
-```
-
-After converting precipitation to a binary variable, there does not appear to be any visible association between whether there was a shooting & whether there was any precipitation that day.
-
-#### TEST ttest to confirm lack of association
-
-
-
-### Holiday Analysis
-
-Tidy holiday data:
-
-```{r}
-holidays <- holidays %>% 
-  pivot_longer(`2025`:`2006`, names_to = "year", values_to = "date") %>% 
-  separate_wider_delim(date, delim = "/", names_sep = "_") %>% 
-  rename(
-    month = date_1,
-    day = date_2
-  ) %>% 
-  mutate(
-    month = case_match(month,
-      "1" ~ "January",
-      "2" ~ "February",
-      "3" ~ "March",
-      "4" ~ "April",
-      "5" ~ "May",
-      "6" ~ "June",
-      "7" ~ "July",
-      "8" ~ "August",
-      "9" ~ "September",
-      "10" ~ "October",
-      "11" ~ "November",
-      "12" ~ "December"),
-    day = as.numeric(day),
-    year = as.numeric(year))
-```
-
-Merge with shooting data:
-
-```{r}
-holiday_shooting <- left_join(weather, holidays, by = c("month", "day", "year")) %>% 
-  select(month, day, year, holiday) %>% 
-  mutate(holiday = replace_na(holiday, "No Holiday"))
-
-holiday_shooting <- left_join(holiday_shooting, shooting, by = c("month", "day", "year")) %>% 
-  group_by(year, month, day) %>% 
-  slice_head() %>% 
-  ungroup() %>% 
-  mutate(
-    shooting = incident_key > 0,
-    shooting = case_match(shooting,
-                          TRUE ~ "Incident",
-                          NA ~ "No Incident"),
-    holiday_yn = holiday != "No Holiday",
-    holiday_yn = case_match(holiday_yn,
-                            FALSE ~ "No Holiday",
-                            TRUE ~ "Holiday")
-  )
-```
-
-Plot of yes vs no holiday:
-
-```{r}
-plot_holiday_yn <- holiday_shooting %>% 
-  ggplot(aes(x = holiday_yn, fill = shooting)) +
-  geom_bar(position = position_dodge()) +
-  theme_minimal() +
-  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
-  xlab("") +
-  ylab("Total Number of Days") +
-  ggtitle("Bar plot of shooting incidence on a federal holiday vs no holiday")
-
-plot_holiday_yn
-```
-
-Plot of individual holidays vs no holiday:
-
-#### TODO fix order of holiday variables (factor?)
-
-```{r}
-plot_holiday_i <- holiday_shooting %>% 
-  filter(holiday != "No Holiday") %>% 
-  drop_na(incident_key) %>% 
-  filter(holiday != "Juneteenth") %>% 
-  ggplot(aes(x = holiday, fill = shooting)) +
-  geom_bar(position = position_dodge(), width = 0.8) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
-  xlab("") +
-  ylab("Total number of days")
-
-plot_holiday_i
-```
-
-It seems that there's a trend of more shootings happening on non-holiday days than on holiday days. Will need to do further testing to confirm whether this is a significant association.
-
-#### TEST test the significance of this, ttest for yes/no holiday, unsure for other holidays. linear regression, probably?
-
-#### TODO holiday shootings / holiday *vs* not holiday shootings / not holiday (ex num/10 vs num/355) to compare ratios/averages
-
-
-
-### COVID Analysis
-
-Plot of per-year shooting incidence:
-
-```{r}
-plot_covid_yearly <- shooting %>% 
-  ggplot(aes(x = year)) +
-  geom_histogram(bins = 19, color = "violetred4", fill = "violetred4") +
-  theme_minimal() +
-  ylab("Number of Shootings") +
-  xlab("Year")
-
-plot_covid_yearly
-```
-
-There appears to be a decrease leading to 2020, and then a spike at 2020.
-
-Create variable for whether or not shooting takes place during COVID-19 pandemic :
-
-- Based on WHO dates for when the pandemic began and ended:
-  - March 11, 2020: start of pandemic
-  - May 5, 2023: end of pandemic
-
-```{r}
-# march 11 2020: declared pandemic by WHO
-# may 5 2023: end of pandemic declared by WHO
-
-pandemic_shooting <- left_join(weather, shooting, by = c("month", "day", "year")) %>% 
-  select(-c(name, prcp, prcp_attributes, tmax, tmin, latitude.x, longitude.x)) %>% 
-  group_by(year, month, day) %>% 
-  slice_head() %>% 
-  ungroup() %>% 
-  mutate(
-    shooting = incident_key > 0,
-    shooting = case_match(shooting,
-                          TRUE ~ "Incident",
-                          NA ~ "No Incident"),
-    month = case_match(month,
-                       "January" ~ 1,
-                       "February" ~ 2,
-                       "March" ~ 3,
-                       "April" ~ 4,
-                       "May" ~ 5,
-                       "June" ~ 6,
-                       "July" ~ 7,
-                       "August" ~ 8,
-                       "September" ~ 9,
-                       "October" ~ 10,
-                       "November" ~ 11,
-                       "December" ~ 12),
-    covid = case_when(
-      year == 2020 & month > 3 ~ TRUE,
-      year == 2020 & month == 3 & day >= 11 ~ TRUE,
-      year == 2021 ~ TRUE,
-      year == 2022 ~ TRUE,
-      year == 2023 & month < 5 ~ TRUE,
-      year == 2023 & month == 5 & day <= 5 ~ TRUE
-    ),
-    covid = case_match(covid,
-                       TRUE ~ "During Covid",
-                       NA ~ "Not During Covid"),
-    month = case_match(month,
-                       1 ~ "January",
-                       2 ~ "February",
-                       3 ~ "March",
-                       4 ~ "April",
-                       5 ~ "May",
-                       6 ~ "June",
-                       7 ~ "July",
-                       8 ~ "August",
-                       9 ~ "September",
-                       10 ~ "October",
-                       11 ~ "November",
-                       12 ~ "December")
-    )
-```
-
-Plot of yes/no COVID-19 shooting:
-
-```{r}
-plot_covid_yn <- pandemic_shooting %>% 
-  ggplot(aes(x = covid, fill = shooting)) +
-  geom_bar(position = position_dodge()) +
-  theme_minimal() +
-  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
-  xlab("")
-
-plot_covid_yn
-```
-
-On a visual level, there does appear to be a much higher ratio of shootings during covid than shootings not during covid.
-
-#### TEST ttest the covid/not covid thing
-
-
-
-### Time (of day and of year) Analysis
-
-Setup:
-
-```{r eval = FALSE}
 # ran once to pull table from website
-url = "https://newyorkcityphotosafari.com/blog/sunrise-sunset-times-in-nyc.html"
+# url = "https://newyorkcityphotosafari.com/blog/sunrise-sunset-times-in-nyc.html"
 
-daylight <- read_html(url) %>% 
-  html_table() %>% 
-  as.data.frame() %>% 
-  janitor::clean_names()
+# daylight <- read_html(url) %>% 
+  # html_table() %>% 
+  # as.data.frame() %>% 
+  # janitor::clean_names()
 
-write.table(daylight, file = "./Data Folder/Daylight_Hours.txt", quote = F, row.names = F, col.names = T, sep = "\t")
-```
+# write.table(daylight, file = "./Data Folder/Daylight_Hours.txt", quote = F, row.names = F, col.names = T, sep = "\t")
 
-```{r}
 # uses the table grabbed above
 daylight <- read.table("./Data Folder/Daylight_Hours.txt", header = T, sep = '\t') %>% 
   rename(day = var_1) %>% 
@@ -432,11 +105,8 @@ daylight <- read.table("./Data Folder/Daylight_Hours.txt", header = T, sep = '\t
       "nov" ~ "November",
       "dec" ~ "December")
     )
-```
 
-Create variable for day/night:
-
-```{r}
+# Creates a variable for day/night
 daylight_shooting <- left_join(shooting, daylight, by = c("month", "day")) %>%
   separate_wider_delim(time, delim = ":", names_sep = "_") %>% 
   separate_wider_delim(sunrise:sunset, delim = ":", names_sep = "_") %>% 
@@ -473,11 +143,8 @@ daylight_shooting <- left_join(shooting, daylight, by = c("month", "day")) %>%
     )
   ) %>% 
   select(incident_key, month, day, year, hour, minute, sunrise_hour, sunrise_minute, sunset_hour, sunset_minute, daylight, everything())
-```
 
-Plot of day/night shootings in general:
-
-```{r}
+# Plot of day/night shootings in general
 plot_daylight_yn <- daylight_shooting %>% 
   ggplot(aes(x = daylight)) +
   geom_bar(fill = "violetred4", width = 0.5) +
@@ -486,16 +153,7 @@ plot_daylight_yn <- daylight_shooting %>%
   xlab("") +
   ggtitle("Count of Daytime vs Nighttime Shootings")
 
-plot_daylight_yn
-```
-
-Yeah there definitely seems like there's more shootings at night vs during the day
-
-#### TEST this
-
-Plot of shootings per hour of the day:
-
-```{r}
+# Plot of shootings per hour of the day
 plot_daylight_hour <- daylight_shooting %>% 
   ggplot(aes(x = hour)) +
   geom_bar(fill = "violetred4") +
@@ -505,56 +163,16 @@ plot_daylight_hour <- daylight_shooting %>%
   ggtitle("Count of Shootings per Hour of Day")
 
 plot_daylight_hour
+plot_daylight_yn
 ```
 
-#### TEST also this. linear regression? logistic?
+**statistical test here**
 
-Plot of day/night shootings per month:
+### **Effect of the day of the week**
 
-```{r}
-plot_daylight_month_light <- daylight_shooting %>%
-  mutate(
-    month = as.factor(month),
-    month = fct_relevel(month, c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))) %>%
-  ggplot(aes(x = month, fill = daylight)) +
-  geom_bar(position = position_dodge()) +
-  theme_minimal() +
-  scale_fill_manual(values = c("lightsteelblue3", "violetred4")) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  xlab("") +
-  ylab("Number of Shootings") +
-  ggtitle("Count of Daytime vs Nighttime Shootings, per Month")
+Do we see more shootings during the weekend than during the weekdays?
 
-plot_daylight_month_light
-```
-
-#### TEST this. somehow. idk. there's something there lmao
-
-Plot of shootings per month regardless of time:
-
-```{r}
-plot_daylight_month <- daylight_shooting %>%
-  mutate(
-    month = as.factor(month),
-    month = fct_relevel(month, c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))) %>%
-  ggplot(aes(x = month)) +
-  geom_bar(fill = "violetred4", width = 0.7) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  xlab("") +
-  ylab("Number of Shootings") +
-  ggtitle("Count of Daytime vs Nighttime Shootings, per Month")
-
-plot_daylight_month
-```
-
-
-
-### Day of Week Analysis
-
-Import and Setup Data:
-
-```{r message = FALSE}
+```{r figures_day, fig.show='hold', out.width="50%", message = FALSE, warning = FALSE}
 #' Read in calendar
 #'
 #' @param year Relevant sheet name
@@ -643,11 +261,8 @@ calendar <- create_full_calendar(2006:2025) %>%
     day = as.numeric(day),
     year = as.numeric(year)
   )
-```
 
-Merge with Shootings:
-
-```{r}
+# Merge with shootings:
 calendar_shooting <- left_join(shooting, calendar, by = c("month", "day", "year")) %>% 
   mutate(
     weekend = case_when(
@@ -661,11 +276,7 @@ calendar_shooting <- left_join(shooting, calendar, by = c("month", "day", "year"
     day_of_week = as.factor(day_of_week),
     day_of_week = fct_relevel(day_of_week, c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"))
   )
-```
 
-Plot of all weekdays:
-
-```{r}
 plot_calendar_alldays <- calendar_shooting %>% 
   ggplot(aes(x = day_of_week)) +
   geom_bar(fill = "violetred4", width = 0.7) +
@@ -676,15 +287,7 @@ plot_calendar_alldays <- calendar_shooting %>%
   ggtitle("Total number of shootings per day of the week")
 
 plot_calendar_alldays
-```
 
-#### TODO weekend shootings / 2 *vs* weekday shootings / 5
-
-#### TODO compare weekends and holidays
-
-Plot of weekends vs week days:
-
-```{r}
 plot_calendar_weekend <- calendar_shooting %>% 
   ggplot(aes(x = weekend)) +
   geom_bar(fill = "violetred4", width = 0.7) +
@@ -696,4 +299,295 @@ plot_calendar_weekend <- calendar_shooting %>%
 plot_calendar_weekend
 ```
 
-#### TEST all days of week individually, as opposed to binary weekend/weekday variable
+- [ ] TODO weekend shootings / 2 *vs* weekday shootings / 5
+- [ ] TODO compare weekends and holidays
+
+**statistical test here**
+
+### **Effect of the seasons**
+
+Do shooting rates differ between months? We found that it did, and compared this information against a temperature histogram to corroborate the spike in shootings that we saw.
+
+```{r figures_month, fig.show='hold', out.width="50%", message = FALSE, warning = FALSE}
+plot_daylight_month <- daylight_shooting %>%
+  mutate(
+    month = as.factor(month),
+    month = fct_relevel(month, c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))) %>%
+  ggplot(aes(x = month)) +
+  geom_bar(fill = "violetred4", width = 0.7) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  xlab("") +
+  ylab("Number of Shootings") +
+  ggtitle("Count of shootings per month")
+
+plot_daylight_month
+
+weather <- weather %>% 
+  separate_wider_delim(date, delim = "-", names_sep = "_") %>% 
+  rename(
+    year = date_1,
+    month = date_2,
+    day = date_3
+  ) %>% 
+  mutate(
+    month = case_match(month,
+      "01" ~ "January",
+      "02" ~ "February",
+      "03" ~ "March",
+      "04" ~ "April",
+      "05" ~ "May",
+      "06" ~ "June",
+      "07" ~ "July",
+      "08" ~ "August",
+      "09" ~ "September",
+      "10" ~ "October",
+      "11" ~ "November",
+      "12" ~ "December"),
+    day = as.numeric(day),
+    year = as.numeric(year)) %>% 
+  filter(year >= 2006) %>% 
+  select(name, month, day, year, prcp, prcp_attributes, tmax, tmin, latitude, longitude)
+
+# Merging weather and shooting
+weather_shooting <- left_join(weather, shooting, by = c("month", "day", "year")) %>% 
+  group_by(year, month, day) %>% 
+  slice_head() %>% 
+  ungroup() %>% 
+  mutate(
+    shooting = incident_key > 0,
+    shooting = case_match(shooting,
+                          TRUE ~ "Incident",
+                          NA ~ "No Incident")
+  )
+
+# Plot
+plot_temp_shoot_hist <- weather_shooting %>% 
+  drop_na(incident_key) %>% 
+  mutate(tmax = tmax / 10) %>% 
+  ggplot(aes(x = tmax)) +
+  geom_histogram(fill = "violetred4") +
+  theme_minimal() +
+  xlab("Maximum daily temperature (C)") +
+  ylab("Total shooting count") +
+  ggtitle("Histogram of total shooting count compared to maximum daily temperature")
+
+plot_temp_shoot_hist
+```
+
+**statistical test here**
+
+### **Effect of the COVID-19 pandemic**
+
+Have shooting rates changed over the years, and did the COVID-19 pandemic impact shooting rates at all? We found that there was a decline in shooting rates between 2006 and 2020, at which point there was a spike in shooting rates which has yet to recover to its pre-pandemic rates.
+
+```{r figures_year, fig.show='hold', out.width="50%", message = FALSE, warning = FALSE}
+plot_covid_yearly <- shooting %>% 
+  filter(year != 2025) %>% 
+  ggplot(aes(x = year)) +
+  geom_histogram(bins = 19, color = "violetred4", fill = "violetred4") +
+  theme_minimal() +
+  ylab("Number of Shootings") +
+  xlab("Year") +
+  ggtitle("Count of shootings per year")
+
+plot_covid_yearly
+
+# march 11 2020: declared pandemic by WHO
+# may 5 2023: end of pandemic declared by WHO
+
+pandemic_shooting <- left_join(weather, shooting, by = c("month", "day", "year")) %>% 
+  select(-c(name, prcp, prcp_attributes, tmax, tmin, latitude.x, longitude.x)) %>% 
+  group_by(year, month, day) %>% 
+  slice_head() %>% 
+  ungroup() %>% 
+  mutate(
+    shooting = incident_key > 0,
+    shooting = case_match(shooting,
+                          TRUE ~ "Incident",
+                          NA ~ "No Incident"),
+    month = case_match(month,
+                       "January" ~ 1,
+                       "February" ~ 2,
+                       "March" ~ 3,
+                       "April" ~ 4,
+                       "May" ~ 5,
+                       "June" ~ 6,
+                       "July" ~ 7,
+                       "August" ~ 8,
+                       "September" ~ 9,
+                       "October" ~ 10,
+                       "November" ~ 11,
+                       "December" ~ 12),
+    covid = case_when(
+      year == 2020 & month > 3 ~ TRUE,
+      year == 2020 & month == 3 & day >= 11 ~ TRUE,
+      year == 2021 ~ TRUE,
+      year == 2022 ~ TRUE,
+      year == 2023 & month < 5 ~ TRUE,
+      year == 2023 & month == 5 & day <= 5 ~ TRUE
+    ),
+    covid = case_match(covid,
+                       TRUE ~ "During Covid",
+                       NA ~ "Not During Covid"),
+    month = case_match(month,
+                       1 ~ "January",
+                       2 ~ "February",
+                       3 ~ "March",
+                       4 ~ "April",
+                       5 ~ "May",
+                       6 ~ "June",
+                       7 ~ "July",
+                       8 ~ "August",
+                       9 ~ "September",
+                       10 ~ "October",
+                       11 ~ "November",
+                       12 ~ "December")
+    )
+
+plot_covid_yn <- pandemic_shooting %>% 
+  ggplot(aes(x = covid, fill = shooting)) +
+  geom_bar(position = position_dodge()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  xlab("") +
+  ggtitle("Comparison of shooting rates during and not during the pandemic")
+
+plot_covid_yn
+```
+
+**statistical test here**
+
+```{r include = FALSE}
+# Precipitation histogram bottom half
+plot_prcp_low_shooting <- weather_shooting %>% 
+  filter(prcp < 400) %>% 
+  ggplot(aes(x = prcp, color = shooting, fill = shooting)) + 
+  geom_histogram() +
+  scale_color_manual(values = c("violetred4", "lightsteelblue3")) +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  theme_minimal() +
+  xlab("Precipitation (tenths of mm)") +
+  ylab("") +
+  ggtitle("HIstogram of shooting count in low precipitation")
+
+# plot_prcp_low_shooting
+
+# Precipitation histogram top half
+plot_prcp_high_shooting <- weather_shooting %>% 
+  filter(prcp > 400) %>% 
+  ggplot(aes(x = prcp, color = shooting, fill = shooting)) + 
+  geom_histogram() +
+  scale_color_manual(values = c("violetred4", "lightsteelblue3")) +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  theme_minimal() +
+  ylab("") +
+  xlab("Precipitation (tenths of mm)") +
+  ggtitle("Histogram of shooting count in high precipitation")
+
+# plot_prcp_high_shooting
+
+# Precipitation yes/no rates
+plot_prcp_yesno <- weather_shooting %>% 
+  mutate(any_prcp = prcp > 0,
+         any_prcp = case_match(any_prcp,
+                               TRUE ~ "Precipitation",
+                               FALSE ~ "No Precipitation")) %>% 
+  ggplot(aes(x = any_prcp, fill = shooting)) +
+  geom_bar(position = position_dodge()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  xlab("") +
+  ylab("Total Number of Days") +
+  ggtitle("Bar plot of shooting incidence in no precipitation vs precipitation")
+
+# plot_prcp_yesno
+
+# Import and tidy holiday data
+holidays <- holidays %>% 
+  pivot_longer(`2025`:`2006`, names_to = "year", values_to = "date") %>% 
+  separate_wider_delim(date, delim = "/", names_sep = "_") %>% 
+  rename(
+    month = date_1,
+    day = date_2
+  ) %>% 
+  mutate(
+    month = case_match(month,
+      "1" ~ "January",
+      "2" ~ "February",
+      "3" ~ "March",
+      "4" ~ "April",
+      "5" ~ "May",
+      "6" ~ "June",
+      "7" ~ "July",
+      "8" ~ "August",
+      "9" ~ "September",
+      "10" ~ "October",
+      "11" ~ "November",
+      "12" ~ "December"),
+    day = as.numeric(day),
+    year = as.numeric(year))
+
+# Merge with shooting data
+holiday_shooting <- left_join(weather, holidays, by = c("month", "day", "year")) %>% 
+  select(month, day, year, holiday) %>% 
+  mutate(holiday = replace_na(holiday, "No Holiday"))
+
+holiday_shooting <- left_join(holiday_shooting, shooting, by = c("month", "day", "year")) %>% 
+  group_by(year, month, day) %>% 
+  slice_head() %>% 
+  ungroup() %>% 
+  mutate(
+    shooting = incident_key > 0,
+    shooting = case_match(shooting,
+                          TRUE ~ "Incident",
+                          NA ~ "No Incident"),
+    holiday_yn = holiday != "No Holiday",
+    holiday_yn = case_match(holiday_yn,
+                            FALSE ~ "No Holiday",
+                            TRUE ~ "Holiday")
+  )
+
+# Holiday yes vs no rates
+plot_holiday_yn <- holiday_shooting %>% 
+  ggplot(aes(x = holiday_yn, fill = shooting)) +
+  geom_bar(position = position_dodge()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  xlab("") +
+  ylab("Total Number of Days") +
+  ggtitle("Bar plot of shooting incidence on a federal holiday vs no holiday")
+
+# plot_holiday_yn
+
+# Holidays only bar plot
+plot_holiday_i <- holiday_shooting %>% 
+  filter(holiday != "No Holiday") %>% 
+  drop_na(incident_key) %>% 
+  filter(holiday != "Juneteenth") %>% 
+  ggplot(aes(x = holiday, fill = shooting)) +
+  geom_bar(position = position_dodge(), width = 0.8) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  scale_fill_manual(values = c("violetred4", "lightsteelblue3")) +
+  xlab("") +
+  ylab("Total number of days")
+
+# plot_holiday_i
+
+# Plot of day/night shootings per month
+plot_daylight_month_light <- daylight_shooting %>%
+  mutate(
+    month = as.factor(month),
+    month = fct_relevel(month, c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))) %>%
+  ggplot(aes(x = month, fill = daylight)) +
+  geom_bar(position = position_dodge()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("lightsteelblue3", "violetred4")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  xlab("") +
+  ylab("Number of Shootings") +
+  ggtitle("Count of Daytime vs Nighttime Shootings, per Month")
+
+# plot_daylight_month_light
+```
