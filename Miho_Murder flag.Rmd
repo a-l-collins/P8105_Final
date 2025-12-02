@@ -5,6 +5,9 @@ date: "2025-11-11"
 output: html_document
 ---
 
+# Introduction
+This analysis aims to understand the distribution and determinants of fatal shooting incidents in New York City. Using the NYPD Shooting Incident data (historic and 2025), I describe borough-level patterns of murder occurrences and conduct a logistic regression model to identify individual characteristics associated with the likelihood that a shooting results in death (Murder Flag = 1).
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 ```
@@ -237,5 +240,8 @@ library(broom)
 tidy(fit_stable, exponentiate = TRUE, conf.int = TRUE)
 ```
 
+* **Comments**
+The regression results indicate that age is a significant predictor of fatal outcomes:
+younger victims (under 25) are significantly less likely to die from a shooting compared to adults, while older victims (65+) have a higher likelihood of fatality. Sex was not significantly associated with the murder outcome. These findings are consistent with known patterns in trauma epidemiology, where older individuals face higher mortality risks from penetrating injuries.
 
 
