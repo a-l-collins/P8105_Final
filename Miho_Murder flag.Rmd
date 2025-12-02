@@ -80,7 +80,7 @@ dat_all_boro_count = dat_all |>
 dat_all_boro_count
 ```
 
-```{r boro-map-data, message=FALSE, warning=FALSE}
+```{r boro-shape, message=FALSE, warning=FALSE, results='hide'}
 nyc_boro = tigris::counties(state = "NY", cb = TRUE) |>
   filter(NAME %in% c("Bronx", "Kings", "New York", "Queens", "Richmond"))
 
