@@ -5,6 +5,10 @@ date: "2025-11-11"
 output: html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
 ```{r}
 library(tidyverse)
 library(tidycensus)
@@ -16,7 +20,6 @@ library(mapview)
 census_api_key("71edc420ec0b86cf5a54c3fc72727f4149467e79")
 ```
 
-
 ```{r}
 library(tidyverse)
 dat1 = read.csv("./Data Folder/Shooting_Historic.csv")
@@ -27,9 +30,14 @@ dat1 = dat1 |>
 
 dat2 = dat2 |>
   mutate(STATISTICAL_MURDER_FLAG = STATISTICAL_MURDER_FLAG %in% c(TRUE, "true", "True"))
+
+dat_all = bind_rows(
+dat1 |> mutate(source = "historic"),
+dat2 |> mutate(source = "y2025")
+)
 ```
 
-## By Each Borough
+## By Each Borough_historic
 ```{r}
 dat1_boro = dat1 |>
   group_by(BORO) |>
@@ -43,27 +51,57 @@ dat1_boro = dat1 |>
 dat1_boro
 ```
 
-## Bar chart
-```{r}
-library(ggplot2)
+## By Each Borough_all
+```{r boro-prop, message=FALSE, warning=FALSE}
+dat_all_boro_prop = dat_all |>
+  group_by(BORO) |>
+  summarise(
+    n_murder = sum(STATISTICAL_MURDER_FLAG),
+    n_total  = n(),
+    prop_murder = n_murder / n_total,
+    .groups = "drop"
+  )
 
-ggplot(dat1_boro,
-       aes(x = reorder(BORO, prop_murder),
-           y = prop_murder)) +
-  geom_col(fill = "steelblue") +
-  coord_flip() +
-  labs(
-    title = "Proportion of Murder (STATISTICAL_MURDER_FLAG) by Borough",
-    x = "Borough",
-    y = "Proportion Murder Flag"
-  ) +
-  theme_minimal() +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1))
+dat_all_boro_prop
 ```
 
-## Map_ percentage
+```{r boro-count, message=FALSE, warning=FALSE}
+dat_all_boro_count = dat_all |>
+  group_by(BORO) |>
+  summarise(
+    n_murder = sum(STATISTICAL_MURDER_FLAG),
+    n_total  = n(),
+    .groups = "drop"
+  )
 
-```{r}
+dat_all_boro_count
+```
+
+```{r boro-map-data, message=FALSE, warning=FALSE}
+nyc_boro = tigris::counties(state = "NY", cb = TRUE) |>
+  filter(NAME %in% c("Bronx", "Kings", "New York", "Queens", "Richmond"))
+
+boro_to_county = function(df) {
+  df |>
+    mutate(
+      county_name = case_when(
+        BORO == "MANHATTAN"     ~ "New York",
+        BORO == "BROOKLYN"      ~ "Kings",
+        BORO == "BRONX"         ~ "Bronx",
+        BORO == "QUEENS"        ~ "Queens",
+        BORO == "STATEN ISLAND" ~ "Richmond"
+      )
+    )
+}
+
+dat_all_boro_prop = boro_to_county(dat_all_boro_prop)
+dat_all_boro_count = boro_to_county(dat_all_boro_count)
+
+```
+
+## Map_ percentage__historic
+
+```{r message=FALSE, warning=FALSE}
 nyc_boro = tigris::counties(state = "NY", cb = TRUE) |>
   filter(NAME %in% c("Bronx", "Kings", "New York", "Queens", "Richmond"))
 
@@ -89,7 +127,24 @@ mapview(nyc_boro_map,
                        round(nyc_boro_map$prop_murder, 3)))
 ```
 
-## map (count)
+## map (percentage)_all
+```{r map-percentage, message=FALSE, warning=FALSE}
+nyc_boro_map_prop = nyc_boro |>
+  left_join(dat_all_boro_prop, by = c("NAME" = "county_name"))
+
+mapview(
+  nyc_boro_map_prop,
+  zcol = "prop_murder",
+  layer.name = "Proportion of Murder by Borough (all years)",
+  popup = paste0(
+    "Borough: ", nyc_boro_map_prop$BORO, "<br>",
+    "Murder proportion: ", round(nyc_boro_map_prop$prop_murder, 3), "<br>",
+    "Total shootings: ", nyc_boro_map_prop$n_total
+  )
+)
+```
+
+## map (count)_historic
 
 ```{r}
 dat1_boro = dat1 |>
@@ -133,14 +188,54 @@ mapview(
 )
 ```
 
-```{r}
-dat1_murder = dat1 |>
-  filter(STATISTICAL_MURDER_FLAG)
+## map (count)_all
+```{r map-count, message=FALSE, warning=FALSE}
+nyc_boro_map_count = nyc_boro |>
+  left_join(dat_all_boro_count, by = c("NAME" = "county_name"))
 
-dat2_murder = dat2 |>
-  filter(STATISTICAL_MURDER_FLAG)
+mapview(
+  nyc_boro_map_count,
+  zcol = "n_murder",
+  layer.name = "Number of Murder Cases by Borough (all years)",
+  popup = paste0(
+    "Borough: ", nyc_boro_map_count$BORO, "<br>",
+    "Number of murder cases: ", nyc_boro_map_count$n_murder, "<br>",
+    "Total shootings: ", nyc_boro_map_count$n_total
+  )
+)
 ```
 
+## regression model 
+```{r regression, message=FALSE, warning=FALSE}
+dat_all_stable = dat_all |>
+  filter(VIC_SEX %in% c("M","F")) |>                 
+  filter(!VIC_AGE_GROUP %in% c("UNKNOWN", "", NA)) |>
+  mutate(
+    age_simple = case_when(
+      VIC_AGE_GROUP %in% c("<18", "18-24") ~ "young",
+      VIC_AGE_GROUP %in% c("25-44", "45-64") ~ "adult",
+      VIC_AGE_GROUP == "65+" ~ "old"
+    ),
+    age_simple = factor(age_simple, levels = c("adult", "young", "old")),
+    STATISTICAL_MURDER_FLAG = as.numeric(STATISTICAL_MURDER_FLAG),
+    VIC_SEX = factor(VIC_SEX)
+  )
+
+fit_stable = glm(
+  STATISTICAL_MURDER_FLAG ~ VIC_SEX + age_simple,
+  data = dat_all_stable,
+  family = binomial()
+)
+
+summary(fit_stable)
+
+```
+
+## OR
+```{r}
+library(broom)
+tidy(fit_stable, exponentiate = TRUE, conf.int = TRUE)
+```
 
 
 
