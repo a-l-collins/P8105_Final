@@ -1,22 +1,37 @@
 ---
-title: "Murder flag"
-author: "Miho Kawanami"
+title: "Analysis of Fatal Shooting Outcomes in New York City"
+author: "Miho Kawanami, mk4996"
 date: "2025-11-11"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
-# Introduction
-This analysis aims to understand the distribution and determinants of fatal shooting incidents in New York City. Using the NYPD Shooting Incident data (historic and 2025), I describe borough-level patterns of murder occurrences and conduct a logistic regression model to identify individual characteristics associated with the likelihood that a shooting results in death (Murder Flag = 1).
+# 1. Introduction
+## Purpose and Data Sources for NYC Shooting Fatality Analysis
+This project analyzes fatal shooting incidents in New York City using two NYPD datasets. The historic dataset covers incidents from 2006 through 2024, and the 2025 year to date dataset provides the most recent records. Together, these data allow an examination of long term patterns and current trends in fatal shootings across boroughs.
+
+The analysis includes descriptive summaries of borough level proportions and counts, followed by a logistic regression model that evaluates whether victim sex and age group are associated with the likelihood of death. These approaches provide a clear view of how demographic factors and geographic context relate to fatal shooting outcomes in New York City.
+
+```{r}
+knitr::include_graphics("Figures/img NYC.jpg")
+```
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 ```
 
 ```{r}
-library(tidyverse)
+library(tidyverse)     
 library(tidycensus)
 library(sf)
 library(mapview)
+library(knitr)
+library(kableExtra)
+library(broom)
 ```
 
 ```{r}
@@ -40,7 +55,12 @@ dat2 |> mutate(source = "y2025")
 )
 ```
 
-## By Each Borough_historic
+# 2. Descriptive Analysis
+This section presents descriptive summaries of fatal shooting incidents across the five boroughs. It focuses on understanding basic patterns in proportions and counts before moving into spatial visualization and regression modeling.
+
+## 2a. Borough-Level Analysis (2006–2024)
+This subsection summarizes the number of fatal shootings, the total number of shooting incidents, and the resulting proportion of fatal outcomes for each borough using the historic dataset from 2006 to 2024. It provides a clear comparison of how often shootings have resulted in death across boroughs over the long term.
+
 ```{r}
 dat1_boro = dat1 |>
   group_by(BORO) |>
@@ -51,10 +71,27 @@ dat1_boro = dat1 |>
     .groups = "drop"
   )
 
-dat1_boro
+dat1_boro |> 
+  mutate(
+    n_murder = format(n_murder, big.mark = ","),
+    n_total = format(n_total, big.mark = ","),
+    prop_murder = sprintf("%.2f", prop_murder)
+  ) |> 
+  kable(
+    col.names = c("Borough", "Murder cases", "Total shootings", "Murder proportion"),
+    align = c("l", "r", "r", "r"),
+    caption = "Fatal Shooting Proportions by Borough (2006 to 2024)"
+  ) |> 
+  kable_styling(full_width = FALSE, position = "center")
 ```
 
-## By Each Borough_all
+* **Comments**
+Fatality proportions are fairly similar across boroughs, ranging from 0.18 to 0.21. Staten Island shows the highest proportion, though it has the fewest total shootings. Brooklyn and the Bronx have the largest numbers of fatal cases due to their higher overall shooting volume. Manhattan shows the lowest proportion. Overall, differences in lethality are small, while differences in total incident counts are much larger.
+
+
+## 2b. Borough-Level Analysis (All Years Combined)
+This subsection presents the number of fatal shootings, the total number of shooting incidents, and the resulting proportion of fatal outcomes for each borough using the full dataset that includes all available years through 2025. This updated summary shows how borough level fatality patterns change when recent incidents are incorporated.
+
 ```{r boro-prop, message=FALSE, warning=FALSE}
 dat_all_boro_prop = dat_all |>
   group_by(BORO) |>
@@ -64,8 +101,6 @@ dat_all_boro_prop = dat_all |>
     prop_murder = n_murder / n_total,
     .groups = "drop"
   )
-
-dat_all_boro_prop
 ```
 
 ```{r boro-count, message=FALSE, warning=FALSE}
@@ -76,8 +111,6 @@ dat_all_boro_count = dat_all |>
     n_total  = n(),
     .groups = "drop"
   )
-
-dat_all_boro_count
 ```
 
 ```{r boro-shape, message=FALSE, warning=FALSE, results='hide'}
@@ -99,10 +132,33 @@ boro_to_county = function(df) {
 
 dat_all_boro_prop = boro_to_county(dat_all_boro_prop)
 dat_all_boro_count = boro_to_county(dat_all_boro_count)
-
 ```
 
-## Map_ percentage__historic
+```{r boro-prop-table, message=FALSE, warning=FALSE}
+dat_all_boro_prop |>
+  select(BORO, n_murder, n_total, prop_murder) |>
+  mutate(
+    BORO        = stringr::str_to_title(stringr::str_to_lower(BORO)),
+    n_murder    = format(n_murder, big.mark = ","),
+    n_total     = format(n_total, big.mark = ","),
+    prop_murder = sprintf("%.2f", prop_murder)
+  ) |>
+  kable(
+    col.names = c("Borough", "Murder cases", "Total shootings", "Murder proportion"),
+    caption   = "Fatal Shooting Proportions by Borough (All Years Including 2025)",
+    align     = c("l", "r", "r", "r")
+  ) |>
+  kable_styling(full_width = FALSE, position = "center")
+```
+
+* **Comments**
+Fatality proportions remain similar across boroughs when all years are included, mostly around 0.18 to 0.20. Brooklyn and the Bronx still account for the highest number of fatal shootings due to their larger total incident counts. Manhattan continues to show the lowest fatality proportion. Overall, adding recent years does not substantially change the borough-level patterns observed in the historic data.
+
+# 3. Geographic Visualization 
+This section presents maps that visually display geographic differences in fatal shooting proportions and counts. The maps help reveal spatial patterns that are less obvious in tables or descriptive summaries.
+
+## 3a. Maps of Murder Proportion　(2006–2024)
+This map shows the proportion of fatal shootings within each borough using historic data between 2006 and 2024, emphasizing long established spatial differences.
 
 ```{r message=FALSE, warning=FALSE}
 nyc_boro = tigris::counties(state = "NY", cb = TRUE) |>
@@ -130,7 +186,12 @@ mapview(nyc_boro_map,
                        round(nyc_boro_map$prop_murder, 3)))
 ```
 
-## map (percentage)_all
+* **Comments**
+Fatality proportions vary only slightly across boroughs, with most areas falling between 0.18 and 0.20. Staten Island appears at the higher end of the range, while Manhattan remains lower relative to other boroughs. Overall, the map highlights that spatial differences in fatality risk are modest, and do not show strong geographic clustering within the city.
+
+## 3b. Maps of Murder Proportion (All Years)
+This map incorporates all years of data to illustrate the most recent geographic distribution of fatal shooting proportions.
+
 ```{r map-percentage, message=FALSE, warning=FALSE}
 nyc_boro_map_prop = nyc_boro |>
   left_join(dat_all_boro_prop, by = c("NAME" = "county_name"))
@@ -147,7 +208,11 @@ mapview(
 )
 ```
 
-## map (count)_historic
+* **Comments**
+Fatality proportions remain very similar across boroughs when all years are included, ranging only from about 0.18 to 0.20. Staten Island continues to have a slightly higher proportion, while Manhattan remains lower relative to the other boroughs. Overall, adding recent years does not introduce new spatial patterns, and the geographic variation in fatality risk remains modest.
+
+## 3c. Maps of Murder Counts　(2006–2024)
+This map displays borough level case counts during the historic period and shows where fatal shootings were most concentrated.
 
 ```{r}
 dat1_boro = dat1 |>
@@ -191,7 +256,12 @@ mapview(
 )
 ```
 
-## map (count)_all
+* **Comments**
+Brooklyn and the Bronx stand out as having the largest numbers of fatal shootings in the historic period. Queens and Manhattan show moderate levels, while Staten Island has very few cases. This distribution reflects substantial differences in overall shooting activity across boroughs.
+
+## 3d. Maps of Murder Counts (All Years)
+This map includes all available data to present the current distribution of case counts across New York City.
+
 ```{r map-count, message=FALSE, warning=FALSE}
 nyc_boro_map_count = nyc_boro |>
   left_join(dat_all_boro_count, by = c("NAME" = "county_name"))
@@ -208,16 +278,24 @@ mapview(
 )
 ```
 
-## regression model 
+* **Comments**
+Brooklyn and the Bronx continue to have the largest numbers of fatal shootings when all years are included, reflecting consistently high incident volumes. Queen and Manhattan remain in the middle range, while Staten Island shows very few cases. These patterns suggest that the overall distribution of fatal shooting counts has remained stable over time.
+
+# 4. Regression Analysis
+This section examines individual level predictors of fatal outcomes using logistic regression. It builds on the descriptive results by quantifying how sex and age group relate to the probability of death.
+
+## 4a. Logistic Model
+A logistic regression model was used with fatal outcome as the dependent variable and victim sex and age group as predictors.
+
 ```{r regression, message=FALSE, warning=FALSE}
 dat_all_stable = dat_all |>
-  filter(VIC_SEX %in% c("M","F")) |>                 
+  filter(VIC_SEX %in% c("M", "F")) |>
   filter(!VIC_AGE_GROUP %in% c("UNKNOWN", "", NA)) |>
   mutate(
     age_simple = case_when(
-      VIC_AGE_GROUP %in% c("<18", "18-24") ~ "young",
-      VIC_AGE_GROUP %in% c("25-44", "45-64") ~ "adult",
-      VIC_AGE_GROUP == "65+" ~ "old"
+      VIC_AGE_GROUP %in% c("<18", "18-24")        ~ "young",
+      VIC_AGE_GROUP %in% c("25-44", "45-64")      ~ "adult",
+      VIC_AGE_GROUP == "65+"                      ~ "old"
     ),
     age_simple = factor(age_simple, levels = c("adult", "young", "old")),
     STATISTICAL_MURDER_FLAG = as.numeric(STATISTICAL_MURDER_FLAG),
@@ -226,22 +304,46 @@ dat_all_stable = dat_all |>
 
 fit_stable = glm(
   STATISTICAL_MURDER_FLAG ~ VIC_SEX + age_simple,
-  data = dat_all_stable,
+  data   = dat_all_stable,
   family = binomial()
 )
 
-summary(fit_stable)
+or_table = tidy(fit_stable, exponentiate = TRUE, conf.int = TRUE) |>
+  mutate(
+    term = case_when(
+      term == "(Intercept)"       ~ "Intercept",
+      term == "VIC_SEXM"          ~ "Victim sex (male vs female)",
+      term == "age_simpleyoung"   ~ "Age group young vs adult",
+      term == "age_simpleold"     ~ "Age group old vs adult",
+      TRUE                        ~ term
+    ),
+    estimate = round(estimate, 2),
+    conf.low = round(conf.low, 2),
+    conf.high = round(conf.high, 2)
+  ) |>
+  select(
+    Predictor = term,
+    `Odds ratio` = estimate,
+    `Lower 95 percent CI` = conf.low,
+    `Upper 95 percent CI` = conf.high
+  )
+
+or_table |>
+  kable(
+    caption = "Adjusted odds ratios for fatal shooting outcomes",
+    align   = c("l", "r", "r", "r")
+  ) |>
+  kable_styling(full_width = FALSE, position = "center")
 
 ```
 
-## OR
+## 4b. Interpretation & Epidemiological Insights
+
+The regression results indicate that age is a significant predictor of fatal outcomes. Younger victims (under 25) have substantially lower odds of dying from a shooting compared with adults, while older victims (65+) have higher odds of fatality. Victim sex is not significantly associated with the likelihood of death. These patterns align with established findings in trauma epidemiology, where mortality risk tends to be lower among younger individuals and higher among older adults.
+
+
 ```{r}
-library(broom)
-tidy(fit_stable, exponentiate = TRUE, conf.int = TRUE)
+knitr::include_graphics("Figures/img_statue.jpg")
 ```
-
-* **Comments**
-The regression results indicate that age is a significant predictor of fatal outcomes:
-younger victims (under 25) are significantly less likely to die from a shooting compared to adults, while older victims (65+) have a higher likelihood of fatality. Sex was not significantly associated with the murder outcome. These findings are consistent with known patterns in trauma epidemiology, where older individuals face higher mortality risks from penetrating injuries.
 
 
