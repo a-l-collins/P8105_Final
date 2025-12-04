@@ -1,0 +1,149 @@
+acquisitiondate,boro,zipcode,address,eapply,location,acres,typecategory,retired
+1948 Aug 19 12:00:00 AM,Manhattan,10017,"741 1 AVENUE, New York, NY",Ralph Bunche Park,"1 Ave., bet. E. 42 St. and E. 43 St.",0.21100000000000002,Triangle/Plaza,FALSE
+1948 Aug 19 12:00:00 AM,Manhattan,10017,"725 1 AVENUE, New York, NY",Trygve Lie Plaza,"1 Ave., bet. E. 41 St. and E. 42 St.",0.095,Triangle/Plaza,FALSE
+1924 Apr 03 12:00:00 AM,Manhattan,10014,"273 6 AVENUE, New York, NY",Downing Street Playground,"Downing St to Carmine St, Av Of Americas",0.223,Playground,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10039,"NA, New York, NY",Bradhurst Gardens Association,W. 152 St. and Fredrick Douglas Blvd.,0.046,Garden,FALSE
+2010 Jan 21 12:00:00 AM,Manhattan,"10024, 10027","NA, New York, NY",West Harlem Piers,Henry Hudson Pkwy. bet. St Clair Pl. and W. 135 St.,4.712,Waterfront Facility,FALSE
+1907 Sep 20 12:00:00 AM,Manhattan,10002,"166 MARKET STREET, New York, NY",Coleman Playground,"Cherry St, Pike St, Monroe St",2.61,Playground,FALSE
+1945 Dec 13 12:00:00 AM,Manhattan,10012,"NA, New York, NY",Minetta Triangle,N/e Corner Ave. of Americas and Minetta St.,0.07500000000000001,Triangle/Plaza,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10039,"NA, New York, NY",Bradhurst Ave Garden,Bradhurst Ave. and W. 152 St.,0.09,Garden,FALSE
+1999 Jul 12 12:00:00 AM,Manhattan,10009,"NA, New York, NY",The Creative Little Garden,"E. 6 St., bet. Ave. A and Ave. B",0.063,Garden,FALSE
+1999 Jul 12 12:00:00 AM,Manhattan,10009,"NA, New York, NY",5th St Slope Garden,E. 5 St. at Ave. C,0.096,Garden,FALSE
+NA,Manhattan,"10021, 10028, 10065, 10075","NA, New York, NY",East River Walk,"FDR Drive, E 63 St. To E 81 St.",3.089,Waterfront Facility,FALSE
+1997 Oct 09 12:00:00 AM,Manhattan,10040,"3703 HARLEM RIVER DRIVE, New York, NY",Sherman Creek,10 Ave. bet. Academy St. and the Harlem River,15.383000000000001,Neighborhood Park,FALSE
+1902 Jul 10 12:00:00 AM,Manhattan,10021,"76-01 FDR DRIVE, New York, NY",John Jay Park,"FDR Dr., E 76 St. To E 78 St.",3.3119999999999994,Community Park,FALSE
+1900 Sep 22 12:00:00 AM,Manhattan,"10027, 10031","675 RIVERSIDE DRIVE, New York, NY",Riverside Park,"Riverside Dr to Henry Hudson Pkwy, W 153 St",13.350000000000001,Neighborhood Park,FALSE
+1846 Oct 19 12:00:00 AM,Manhattan,10001,"1 HERALD SQUARE, New York, NY",Herald Square,"Broadway, Ave of the Americas, bet. W. 34 St. and W. 35 St.",0.21000000000000002,Triangle/Plaza,FALSE
+1909 Nov 29 12:00:00 AM,Manhattan,"10027, 10031","48 ST NICHOLAS AVENUE, New York, NY",St Nicholas Park,"St. Nicholas Ave., St. Nicholas Ter. bet. W. 128 St. and W. 141 St.",22.74,Neighborhood Park,FALSE
+1948 Sep 21 12:00:00 AM,Manhattan,10017,"833 1 AVENUE, New York, NY",Dag Hammarskjold Plaza,E. 47 St. bet. 1 Ave. and 2 Ave.,1.59,Triangle/Plaza,FALSE
+1943 Feb 11 12:00:00 AM,Manhattan,10065,"501 EAST 60 STREET, New York, NY",Twenty-Four Sycamores Park,"FDR Dr., E. 60 St. To E. 61 St. and York Ave.",0.622,Playground,FALSE
+1956 Jan 12 12:00:00 AM,Manhattan,10035,"NA, New York, NY",Crack Is Wack Playground,"E. 127 St., 2 Ave., and Harlem River Drive",1.369,Playground,FALSE
+1918 Feb 23 12:00:00 AM,Manhattan,10033,"NA, New York, NY",Plaza Lafayette,"Riverside Dr., W. 181 St. To Haven Ave.",0.092,Triangle/Plaza,FALSE
+1947 Jan 16 12:00:00 AM,Manhattan,10037,"NA, New York, NY",Harlem River Park,"Lexington Ave., E. 130 St. to E. 131 St.",0.203,Triangle/Plaza,FALSE
+1952 Jun 12 12:00:00 AM,Manhattan,10038,"NA, New York, NY",Playground One,Madison St. bet. Catherine St. and Oliver St.,0.44,Jointly Operated Playground,FALSE
+NA,Manhattan,10013,"NA, New York, NY",Canal Park,Canal St. bet. West St. and Washington St.,0.6689999999999999,Neighborhood Park,FALSE
+1828 Dec 23 12:00:00 AM,Manhattan,10003,"NA, New York, NY",Cooper Triangle,"3 Av To 4 Av, E 6 St To E 7 St",0.165,Triangle/Plaza,FALSE
+1913 Jul 22 12:00:00 AM,Manhattan,10030,"NA, New York, NY",Dorrance Brooks Square,"W 136 St To W 137 St, St Nicholas Av, Edgecom Av",0.038,Triangle/Plaza,FALSE
+1993 Aug 20 12:00:00 AM,Manhattan,10009,"706 EAST 5 STREET, New York, NY",El Jardin Del Paraiso Park,"E. 4 St. to E. 5 St., Ave. C, Ave. D",0.73,Garden,FALSE
+1994 Mar 03 12:00:00 AM,Manhattan,10029,"500-501 E. 107 Street, New York, NY",Pier 107 CVII,FDR Dr. at E. 107 St.,0.356,Waterfront Facility,FALSE
+1984 May 23 12:00:00 AM,Manhattan,10022,"NA, New York, NY",Tramway Plaza,Second Ave. bet. E. 59 St. to E. 60 St.,0.345,Triangle/Plaza,FALSE
+1938 Jan 01 12:00:00 AM,Manhattan,10010,"384 ASSER LEVY PLACE, New York, NY",Asser Levy Playground,"E. 23 St. To E. 25 St., FDR Drive",2.4359999999999995,Community Park,FALSE
+1890 Jun 04 12:00:00 AM,Manhattan,"10021, 10022, 10028, 10029, 10065, 10075, 10128","NA, New York, NY",Park Avenue Malls 59th-97th,E. 59 St. To E. 97 St. and Park Ave.,4.622999999999999,Mall,FALSE
+1876 Jun 02 12:00:00 AM,Manhattan,"10023, 10024, 10025","NA, New York, NY",Riverside Park,"Riverside Dr. to Hudson River, W. 72 St.to St Clair Pl.",253.168,Community Park,FALSE
+1972 Aug 02 12:00:00 AM,Manhattan,"10024, 10025","NA, New York, NY",Joan Of Arc Park,"Riverside Dr., W. 91 St. To W. 95 St.",1.578,Neighborhood Park,FALSE
+1908 Apr 09 12:00:00 AM,Manhattan,"10023, 10024, 10025","NA, New York, NY",Broadway Malls 59th-110th,"Broadway, Columbus Circle To W 110 St",5.754,Mall,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10027,"2351 FRED DOUGLASS BLVD, New York, NY",CEP Community Garden,W. 126 St. and Frederick Douglass Blvd.,0.057,Garden,FALSE
+1937 Jun 01 12:00:00 AM,Manhattan,10039,"2619 ADAM C POWELL BLVD, New York, NY",Frederick Johnson Playground,7 Ave. bet. W. 150 St. and W. 151 St.,2.445,Recreational Field/Courts,FALSE
+1961 Sep 28 12:00:00 AM,Manhattan,10038,"51 ST JAMES PLACE, New York, NY",St. James Triangle,St James Pl. and Oliver St.,0.043000000000000003,Triangle/Plaza,FALSE
+1960 Apr 28 12:00:00 AM,Manhattan,10023,"22484 WEST 70 STREET, New York, NY",Matthew P. Sapolin Playground,W. 70 St. bet. W. End Ave. and Amsterdam Ave.,0.9470000000000001,Jointly Operated Playground,FALSE
+1956 Feb 23 12:00:00 AM,Manhattan,10039,"2930 FRED DOUGLASS BLVD, New York, NY",Holcombe Rucker Park,"W. 155 St., 8 Ave. To Harlem River Drive",3.05,Neighborhood Park,FALSE
+1953 Oct 22 12:00:00 AM,Manhattan,10027,"2200 ADAM C POWELL BLVD, New York, NY",St. Nicholas Playground North,W/s 7 Ave. at W. 130 St.,0.6599999999999999,Playground,FALSE
+1953 Oct 22 12:00:00 AM,Manhattan,10027,"2400 FRED DOUGLASS BLVD, New York, NY",St. Nicholas Playground South,W/s 7 Ave. bet. W. 127 St. and W. 129 St.,0.6699999999999999,Playground,FALSE
+1945 Jan 04 12:00:00 AM,Manhattan,10027,"500 WEST 129 STREET, New York, NY",Sheltering Arms Playground,"W. 126 St. to W. 129 St., Amsterdam Ave. to Old Broadway",1.43,Community Park,FALSE
+1938 Jan 01 12:00:00 AM,Manhattan,10014,"2 7 AVENUE, New York, NY",Tony Dapolito Recreation Center,"Carmine St. and Clarkson St., 7 Ave.",0.20800000000000002,Buildings/Institutions,FALSE
+1893 Jul 17 12:00:00 AM,Manhattan,10002,"397 FDR DRIVE W LANE, New York, NY",Corlears Hook Park,"Jackson St, Cherry St, FDR Drive",4.3549999999999995,Neighborhood Park,FALSE
+1896 Dec 21 12:00:00 AM,Manhattan,10027,"NA, New York, NY",Sakura Park,"Riverside Dr., Claremont Ave. To W. 122 St.",2.067,Neighborhood Park,FALSE
+1917 Aug 01 12:00:00 AM,Manhattan,10032,"NA, New York, NY",Haven Avenue,Riverside Dr. bet. W 176 St. and W 178 St.,1.3800000000000001,Parkway,FALSE
+2007 Aug 02 12:00:00 AM,Manhattan,"10022, 10065","555 EAST 60 STREET, New York, NY",Andrew Haswell Green Park,E. River bet. E. 59 St. and E. 63 St.,1.984,Neighborhood Park,FALSE
+1935 Mar 13 12:00:00 AM,Manhattan,10128,"NA, New York, NY",Park,E. 93 St. and FDR Dr.,0.034,Triangle/Plaza,FALSE
+NA,Manhattan,10022,"NA, New York, NY",Sutton Parks,"E. 53 St. to E. 54 St. at Sutton Pl.; Foot of E. 55 St., E. 56 St., E. 57 St.",0.8500000000000001,Triangle/Plaza,FALSE
+1995 Oct 20 12:00:00 AM,Manhattan,10022,"NA, New York, NY",Sutton Place Park,E. River bet. E. 56 St. and E. 57 St.,0.268,Neighborhood Park,FALSE
+1934 Nov 08 12:00:00 AM,Manhattan,10032,"NA, New York, NY",Bushman Steps,"Edgecombe Ave., W. 157 St.",0.08,Triangle/Plaza,FALSE
+1934 May 09 12:00:00 AM,Manhattan,10003,"NA, New York, NY",Peretz Square,"E. 1 St., E. Houston St., 1 Ave. and Allen St.",0.192,Triangle/Plaza,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10009,"NA, New York, NY",Allied Productions/Le Petit Versailles,"E. 2 St., E. Houston St. bet. Ave. B and Ave. C",0.034,Garden,FALSE
+1912 May 08 12:00:00 AM,Manhattan,10038,"NA, New York, NY",Peck Slip,Peck Slip bet. South St. and Front St.,0.187,Triangle/Plaza,FALSE
+1934 Dec 13 12:00:00 AM,Manhattan,10039,"NA, New York, NY",Bill Bojangles Robinson Playground,"W. 150 St., W/s 7 Ave.",0.17200000000000001,Playground,FALSE
+1911 Oct 19 12:00:00 AM,Manhattan,"10033, 10040","NA, New York, NY",Bennett Rest,"Henry Hudson Pkwy, Cabrini Blvd, at W186 St",3.567,Nature Area,FALSE
+1942 Jun 08 12:00:00 AM,Manhattan,10035,"NA, New York, NY",Strip,E. 120 St. and Paladino Ave. (Service Rd To FDR Dr.),0.188,Strip,FALSE
+1917 Aug 01 12:00:00 AM,Manhattan,10032,"NA, New York, NY",Strip,"E/s Riverside Dr, W 168 St To W 177 St",1.494,Strip,FALSE
+1997 Apr 29 12:00:00 AM,Manhattan,10128,"NA, New York, NY",Ruppert Park,Second Ave. bet. E. 90 St. and E. 91 St.,0.997,Neighborhood Park,FALSE
+1994 Mar 03 12:00:00 AM,Manhattan,10016,"NA, New York, NY",East River Esplanade 36th-38th,FDR Dr. bet. E. 36 St. and E. 41 St.,1.7349999999999999,Neighborhood Park,FALSE
+1990 May 30 12:00:00 AM,Manhattan,10036,"NA, New York, NY",Ramon Aponte Park,47 St. bet. 8 Ave. and 9 Ave.,0.17400000000000002,Playground,FALSE
+1989 Jun 15 12:00:00 AM,Manhattan,10014,"NA, New York, NY",Sheridan Square Viewing Garden,"Washington Pl., W. 4 St., Barrow St.",0.07,Triangle/Plaza,FALSE
+1982 Apr 27 12:00:00 AM,Manhattan,10280,"NA, New York, NY",Battery Park City,bet. Hudson River and South End Ave. S/o Liberty St.,1.556,Neighborhood Park,FALSE
+1984 Nov 16 12:00:00 AM,Manhattan,10036,"NA, New York, NY",Clinton Community Garden,"W. 47 St.,  W. 48 St., 9 Ave., 10 Ave.",0.35,Garden,FALSE
+1977 May 26 12:00:00 AM,Manhattan,10013,"NA, New York, NY",Juan Pablo Duarte Square,"Ave. Of Americas, Canal St. and Grand St.",0.448,Triangle/Plaza,FALSE
+1964 Oct 20 12:00:00 AM,Manhattan,10038,"NA, New York, NY",James Madison Plaza,"Pearl St., Madison St. and St James Pl.",0.361,Triangle/Plaza,FALSE
+1961 Apr 27 12:00:00 AM,Manhattan,10038,"NA, New York, NY",Kimlau Square,"Chatham Sq., Oliver St. and E. Broadway",0.24200000000000002,Triangle/Plaza,FALSE
+1912 Oct 17 12:00:00 AM,Manhattan,10031,"NA, New York, NY",Johnny Hartman Square,"Amsterdam Av, W 143 St and Hamilton Pl",0.018000000000000002,Triangle/Plaza,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10025,"NA, New York, NY",La Perla Garden,W. 105 St. bet. Columbus Ave. and Manhattan Ave.,0.04,Garden,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10009,"NA, New York, NY",Campos Garden,E. 12 St. bet. Ave. B and Ave. C,0.119,Garden,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10029,"NA, New York, NY",Neighbors Of Vega Baja,E. 109 St. bet. 1 Ave. and 2 Ave.,0.07200000000000001,Garden,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10009,"NA, New York, NY",Dias Y Flores,E. 13 St. bet. Ave. A and Ave. B,0.119,Garden,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10002,"NA, New York, NY",Clinton Community Garden (LES),Stanton St. and Clinton St.,0.06,Garden,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10009,"NA, New York, NY",Earth People,E. 8 St. bet. Ave. B and Ave. C,0.10600000000000001,Garden,FALSE
+2001 Feb 09 12:00:00 AM,Manhattan,10031,"NA, New York, NY",Edgecombe Park,Edgecombe Ave. and W. 150 St.,0.112,Garden,FALSE
+2001 Feb 09 12:00:00 AM,Manhattan,10031,"NA, New York, NY",Sugar Hill Garden,Edgecombe Ave. and W. 150 St.,0.06899999999999999,Garden,FALSE
+1999 Jul 12 12:00:00 AM,Manhattan,10009,"NA, New York, NY",6BC Botanical Garden,"E. 5 St. and E. 6 St., Ave. B and Ave. C",0.17800000000000002,Garden,FALSE
+1999 Jul 12 12:00:00 AM,Manhattan,10009,"NA, New York, NY",Green Oasis and Gilbert's Garden,E. 8 St. bet. Ave. C and Ave. D,0.388,Garden,FALSE
+1999 Jul 12 12:00:00 AM,Manhattan,10009,"NA, New York, NY",Firemen's Memorial Garden,E. 8 St. bet. Ave. C and Ave. D,0.169,Garden,FALSE
+1998 Jul 27 12:00:00 AM,Manhattan,10024,"NA, New York, NY",W 87th Street Garden,"W. 87 St., Columbus Ave., Central Park W.",0.095,Garden,FALSE
+1998 May 11 12:00:00 AM,Manhattan,10027,"NA, New York, NY",Collyer Brothers Park,"5 Ave., E. 128 St.",0.034,Garden,FALSE
+2011 Apr 18 12:00:00 AM,Manhattan,10035,"NA, New York, NY",Carolina Garden,E 122 St. bet. Park Ave. and Lexington Ave.,0.063,Garden,FALSE
+1953 Oct 08 12:00:00 AM,Manhattan,10128,"NA, New York, NY",Mill Rock Park,East River Opp E. 96 St.,8.639,Nature Area,FALSE
+1896 Aug 07 12:00:00 AM,Manhattan,"10032, 10033, 10034","NA, New York, NY",Fort Washington Park,"Riverside Dr., Hudson River, W. 155 St. to Dyckman St.",184.14299999999997,Community Park,FALSE
+1934 May 09 12:00:00 AM,Manhattan,10014,"NA, New York, NY",Playground of the Americas,"S/s W. Houston St., Ave. of Americas",0.079,Playground,FALSE
+1851 Aug 19 12:00:00 AM,Manhattan,10016,"NA, New York, NY",Park Avenue Malls 34th-39th,E 34 St To E 39 St and Park Av,0.65,Mall,FALSE
+1938 Jan 01 12:00:00 AM,Manhattan,10012,"NA, New York, NY",Lt. Joseph Petrosino Square,"Kenmare St., Lafayette St., and Cleveland Pl.",0.047,Triangle/Plaza,FALSE
+1930 May 02 12:00:00 AM,Manhattan,10002,"NA, New York, NY",Allen Street Malls,"E Houston St, E Broadway",1.6980000000000002,Mall,FALSE
+1982 Apr 27 12:00:00 AM,Manhattan,"10007, 10013, 10280","NA, New York, NY",Battery Park City,"Hudson River, Liberty St. West St, and Pier A",26.041999999999998,Community Park,FALSE
+1899 Dec 08 12:00:00 AM,Manhattan,"10032, 10033, 10034, 10037, 10039, 10040, 10451","NA, New York, NY",Harlem River Park,Harlem River Dr. from E. 131 St. to W. 145 St. and W. 155 St. to Dyckman St.,46.657,Parkway,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10032,"NA, New York, NY",NA,W. 158 St. bet. Amsterdam Ave. and Broadway,0.045,Garden,FALSE
+1810 Feb 19 12:00:00 AM,Manhattan,10013,"NA, New York, NY",Tribeca Park,"Walker St., Beach St. bet. St. John's La. and Ave. of the Americas",0.32,Triangle/Plaza,FALSE
+1938 Apr 20 12:00:00 AM,Manhattan,10035,"1 WARDS ISLAND, New York, NY",Wards Island Park,East River and Hell Gate,170.7,Recreational Field/Courts,FALSE
+1870 Aug 16 12:00:00 AM,Manhattan,10026,"NA, New York, NY",Morningside Park,"W 110 St To W 123 St, Manhattan Av To Morningside Av",29.887999999999998,Community Park,FALSE
+1870 Jul 28 12:00:00 AM,Manhattan,10019,"1 GRAND ARMY PLAZA, New York, NY",Grand Army Plaza (part of Central Park for special event layer),"5 Av, W 58 St To W 59 St",0.625,Triangle/Plaza,FALSE
+1686 Apr 27 12:00:00 AM,Manhattan,10004,"NA, New York, NY",Bowling Green,Broadway and Whitehall St.,1.016,Triangle/Plaza,FALSE
+1933 Sep 15 12:00:00 AM,Manhattan,10035,"NA, New York, NY",Triboro Plaza,"1 Ave. To 2 Ave., bet. E. 124 St. and E. 126 St.",2.3,Triangle/Plaza,FALSE
+1966 Aug 25 12:00:00 AM,Manhattan,10016,"NA, New York, NY",Vincent F. Albano Jr. Playground,2 Ave. bet. E. 29 St. and E. 30 St.,0.346,Playground,FALSE
+1888 Mar 01 12:00:00 AM,Manhattan,"10017, 10022","NA, New York, NY",Park Avenue Malls 57th-59th,E 57 St To E 59 St and Park Av,0.23,Mall,FALSE
+2016 Mar 25 12:00:00 AM,Manhattan,10027,"NA, New York, NY",NA,W. 127 St. bet. Lenox Ave. and Adam Clayton Powell Jr. Blvd.,0.033,Garden,FALSE
+1941 Jul 01 12:00:00 AM,Manhattan,10027,"NA, New York, NY",Roosevelt Triangle,W. 125 St. and Morningside Ave.,0.07300000000000001,Triangle/Plaza,FALSE
+1911 Jun 14 12:00:00 AM,Manhattan,10002,"NA, New York, NY",Schiff Mall,Delancey St bet. Bowery and Essex St,0.376,Mall,FALSE
+1997 Jul 15 12:00:00 AM,Manhattan,10030,"NA, New York, NY",Margrichante Garden,W. 133 St. bet. Lenox Ave. and Adam C Powell Blvd.,0.171,Garden,FALSE
+1952 Mar 20 12:00:00 AM,Manhattan,10005,"NA, New York, NY",The Queen Elizabeth II September 11th Garden,"Hanover Sq., Pearl St. and Stone St.",0.117,Triangle/Plaza,FALSE
+1956 Jan 12 12:00:00 AM,Manhattan,10035,"NA, New York, NY",Harlem River Park,E. 127 St. and Harlem River Drive,0.351,Triangle/Plaza,FALSE
+1956 Jan 12 12:00:00 AM,Manhattan,10035,"NA, New York, NY",Harlem River Park,"E. 127 St., 2 Ave., and Harlem River Drive",0.267,Triangle/Plaza,FALSE
+NA,Manhattan,"10012, 10013","NA, New York, NY",Father Fagan Park,Ave. Of Americas bet. Prince St. and Spring St.,0.15000000000000002,Triangle/Plaza,FALSE
+1948 Apr 22 12:00:00 AM,Manhattan,10009,"NA, New York, NY",Wald Playground,E. Houston St. and FDR Dr.,0.525,Jointly Operated Playground,FALSE
+1944 Aug 01 12:00:00 AM,Manhattan,10037,"NA, New York, NY",Abraham Lincoln Playground,5 Ave. and E. 135 St.,0.991,Community Park,FALSE
+1938 Jan 01 12:00:00 AM,Manhattan,10003,"NA, New York, NY",Abe Lebewohl Park,E. 10 St. and 2 Ave.,0.15600000000000003,Triangle/Plaza,FALSE
+2015 Nov 01 12:00:00 AM,Manhattan,10012,"1 WASHINGTON SQ VLLGE, New York, NY",Mercer Playground,Mercer St. bet. Houston St. and W. 4 St.,0.446,Playground,FALSE
+1938 Jun 16 12:00:00 AM,Manhattan,10002,"NA, New York, NY",Cherry Clinton Playground,Corner of Cherry St. and Clinton St.,0.48300000000000004,Playground,FALSE
+NA,Manhattan,10026,"NA, New York, NY",Samuel Marx Triangle,"7 Ave., St. Nicholas Ave., W. 115 St.",0.03,Triangle/Plaza,FALSE
+1945 Apr 16 12:00:00 AM,Manhattan,10035,"NA, New York, NY",Harlem Art Park,E. 120 St. and Sylvan Pl.,0.347,Neighborhood Park,FALSE
+1937 Nov 04 12:00:00 AM,Manhattan,10030,"NA, New York, NY",Fred Samuel Playground,"Lenox Ave., W. 139 St. To W. 140 St.",0.688,Playground,FALSE
+1938 Jan 01 12:00:00 AM,Manhattan,10003,"NA, New York, NY",Abe Lebewohl Triangle,E. 10 St. and Stuyvesant Pl.,0.014,Triangle/Plaza,FALSE
+NA,Manhattan,10014,"NA, New York, NY",Father Demo Square,"Ave. of Americas, Bleecker St. and Carmine St.",0.24700000000000003,Triangle/Plaza,FALSE
+1943 Jun 05 12:00:00 AM,Manhattan,10014,"NA, New York, NY",McCarthy Square,"7 Ave., Charles St. and Waverly Pl.",0.039,Triangle/Plaza,FALSE
+NA,Manhattan,10038,"NA, New York, NY",Pearl St Playground,Pearl St. bet. Fulton St. and Beekman St.,0.34199999999999997,Playground,FALSE
+1849 Mar 31 12:00:00 AM,Manhattan,10023,"NA, New York, NY",Sherman Square,Broadway and Amsterdam Ave. At W. 70 St.,0.066,Triangle/Plaza,FALSE
+NA,Manhattan,10002,"NA, New York, NY",Staraus Square,"Canal St., Rutgers St. and E. Broadway",0.12000000000000001,Triangle/Plaza,FALSE
+1939 Oct 01 12:00:00 AM,Manhattan,10038,"NA, New York, NY",Catherine Slip Malls,Catherine Slip bet. Cherry St. and South St.,0.25,Mall,FALSE
+1831 Apr 22 12:00:00 AM,Manhattan,10014,"NA, New York, NY",Abingdon Square,"Hudson St, 8 Av, W 12 St",0.222,Triangle/Plaza,FALSE
+1837 Apr 05 12:00:00 AM,Manhattan,10014,"NA, New York, NY",Christopher Park,"Christopher St, Grove St, W 4 St",0.186,Triangle/Plaza,FALSE
+1896 Jun 18 12:00:00 AM,Manhattan,10026,"NA, New York, NY",A Philip Randolph Square,"7 Av, St Nicholas Av, W 117 St",0.07400000000000001,Triangle/Plaza,FALSE
+1870 Dec 23 12:00:00 AM,Manhattan,10023,"NA, New York, NY",Dante Park,"Broadway, Columbus Av, W 63 St",0.14200000000000002,Triangle/Plaza,FALSE
+1825 Feb 24 12:00:00 AM,Manhattan,10002,"NA, New York, NY",Ahearn Park,"Grand St, E Broadway and Willet St",0.094,Triangle/Plaza,FALSE
+1797 Jun 20 12:00:00 AM,Manhattan,10013,"NA, New York, NY",Duane Park,"Hudson St., Duane St.",0.115,Triangle/Plaza,FALSE
+NA,Manhattan,10031,"NA, New York, NY",Donnellan Square,"St Nicholas Av, W 150 St To St Nicholas Av",0.10800000000000001,Triangle/Plaza,FALSE
+1930 Apr 23 12:00:00 AM,Manhattan,10040,"NA, New York, NY",Amelia Gorman Park,"Broadway To Wadsworth Terr, W 189 St To W 190 St",1.8900000000000001,Neighborhood Park,FALSE
+1893 Nov 01 12:00:00 AM,Manhattan,10039,"NA, New York, NY",Brigadier General Charles Young Triangle,"7 Ave., Macombs Pl., At W. 153 St.",0.882,Triangle/Plaza,FALSE
+1870 Aug 16 12:00:00 AM,Manhattan,10027,"NA, New York, NY",Hancock Park,"St Nicholas Av, Manhattan Av, W 123 St",0.067,Triangle/Plaza,FALSE
+1906 Jan 10 12:00:00 AM,Manhattan,10031,"NA, New York, NY",Montefiore SquarePark,"Broadway, Hamilton Pl., W. 138 St.",0.33999999999999997,Triangle/Plaza,FALSE
+1955 Oct 20 12:00:00 AM,Manhattan,10013,"NA, New York, NY",Grand Canal Court,"Thompson St., Canal St., Ave. of the Americas",0.134,Recreational Field/Courts,FALSE
+1876 May 04 12:00:00 AM,Manhattan,10014,"NA, New York, NY",Jackson Square,"8 Ave. To Greenwich Ave., Horatio St.",0.227,Triangle/Plaza,FALSE
+1937 Apr 16 12:00:00 AM,Manhattan,10032,"NA, New York, NY",McKenna Square,"W. 165 St., Amsterdam Ave. To Audubon Ave.",0.222,Triangle/Plaza,FALSE
+1893 Nov 01 12:00:00 AM,Manhattan,10039,"NA, New York, NY",Percy E. Sutton Playground,"Harlem River Dr., W. 151 St. To W. 154 St.",1.635,Neighborhood Park,FALSE
+1856 Feb 05 12:00:00 AM,Manhattan,"10023, 10024, 10025","1000 5 AVENUE, New York, NY",Central Park,"5 Av To Central Park W, 59 St To 110 St",840.01,Flagship Park,FALSE
+2006 Feb 24 12:00:00 AM,Manhattan,"10001, 10011, 10014","NA, New York, NY",The High Line,Gansevoort St. To W. 30 St. bet. Washington St. and 11 Ave.,6.73,Community Park,FALSE
+NA,Manhattan,"10028, 10029, 10035, 10128","NA, New York, NY",East River Esplanade 90th-125th,"FDR Drive, E 90 St. To E 125 St.",8.595,Waterfront Facility,FALSE
+1835 Apr 08 12:00:00 AM,Manhattan,10035,"NA, New York, NY",Randall's Island Park,East River and Harlem River,254.3,Flagship Park,FALSE
+1957 Jun 27 12:00:00 AM,Manhattan,10002,"288 DELANCEY STREET, New York, NY",Baruch Playground,Corner of Baruch Pl. and Mangin St.,2.32,Recreational Field/Courts,FALSE
+1911 May 25 12:00:00 AM,Manhattan,"10026, 10027, 10030, 10039","NA, New York, NY",Adam Clayton Powell Jr. Malls,"7 Ave., W. 110 St. To W. 152 St.",1.679,Mall,FALSE
+1939 Feb 24 12:00:00 AM,Manhattan,10002,"NA, New York, NY",John V. Lindsay East River Park,"Montgomery St. To E. 12 St., FDR Drive",45.879999999999995,Community Park,FALSE
+2002 Nov 20 12:00:00 AM,Manhattan,10032,"NA, New York, NY",Harris Garden,W. 153 St. and St Nicholas Ave.,0.109,Garden,FALSE
+1908 Apr 09 12:00:00 AM,Manhattan,"10025, 10027","NA, New York, NY",Broadway Malls 110th-122nd,"Broadway, W 110 StTo W 122 St",1.3,Mall,FALSE
+1938 Nov 03 12:00:00 AM,Manhattan,"10031, 10032","NA, New York, NY",Recreational Area,"W. 145 St., W. 155 St., Hudson River",23.093,Community Park,FALSE
+1908 Apr 09 12:00:00 AM,Manhattan,"10031, 10032","NA, New York, NY",Broadway Malls 135th-156th,"Broadway, W. 135 St. To W. 156 St.",2.198,Mall,FALSE
+1908 Apr 09 12:00:00 AM,Manhattan,10032,"NA, New York, NY",Broadway Malls 156th-168th,"Broadway, W 156 St To W 168 St",1.139,Mall,FALSE

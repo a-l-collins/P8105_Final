@@ -5,13 +5,28 @@ date: "2025-11-13"
 output: html_document
 ---
 
+Based on published literature, we were interested in performing a descriptive analysis on green spaces and gun shooting incidents. For example, previous research by [Kondo et al.](https://pubmed.ncbi.nlm.nih.gov/28481962/) found that tree coverage had a negative association with gun assaults. In this project, we operationalized parks in NYC as a proxy for green space by aggregating the total number of park acres within each census tract in Manhattan. Shooting incident data were compiled separately for 2025 (until September), 2006–2024 historical data, and a merged dataset. For the purposes of this descriptive analysis, we created separate maps for each shooting data set for most analyses, as the 2025 data set was incomplete.
+
+We conducted three separate analyses:. 
+
+1) For census tracts with nonzero park acreage, we examined whether park acreage was associated with the density of shooting incidents. We mapped this density, calculated as shootings per park acre, across Manhattan census tracts 2025 shooting data, historic shooting data, and merged shooting data.
+2) For census tracts with no recorded park acreage, we mapped the raw number of shooting incidents across census tracts. We opted for counts, as opposed to density, because park acreage is zero.
+3) For all census tracts, regardless of park presence, we assessed whether total park acreage was correlated with the number of shooting incidents. Additionally, we conducted a separate correlation test examining the relationship between park acreage and shootings per acre.
+
+This was purely a descriptive analysis of parks and gun violence. Given the cross-sectional nature of our data, the limitations of our spatial approach, and the absence of confounder adjustment, we cannot make causal inferences about the relationship between green space and shooting incidents.
+
+
+# Load packages
+
 ```{r}
 library(tidyverse)
 library(tidycensus)
 library(sf)
 library(tigris)
-
+library(mapview)
 ```
+
+# Shooting incident data sets (2025 and Historic) and Park data set
 
 ```{r}
 parks_df =
@@ -20,6 +35,7 @@ parks_df =
   select(acquisitiondate, borough, zipcode, address, 
          eapply, location, acres, typecategory, retired) |> 
   rename(boro = borough) |> 
+  drop_na(address) |> 
    mutate(
       boro = case_when(
       boro == "B" ~ "Brooklyn",
@@ -29,48 +45,78 @@ parks_df =
       boro == "X" ~ "Bronx",
       TRUE ~ NA_character_
     ),
-    address = paste(address, "New York, NY", sep = ", ")
+  address = paste(address, "New York, NY", sep = ", ")
   ) |>
   filter(boro == "Manhattan") 
-
-census_geo_parks <- 
-  parks_df |> 
-  select(address)
   
-
-
 shooting25_df =
   read_csv("Data Folder/Shooting_2025.csv", na = c("NA", ".", "")) |>
   janitor::clean_names() |> 
   distinct(incident_key, .keep_all = TRUE) |> 
-  filter(boro == "MANHATTAN")
-
+  filter(boro == "MANHATTAN") |> 
+  drop_na(latitude) |> 
+  mutate(statistical_murder_flag = case_match(statistical_murder_flag,
+                                             "N" ~ FALSE,
+                                             "Y" ~ TRUE))
 
 shooting06_24_df = 
   read_csv("Data Folder/Shooting_Historic.csv", na = c("NA", ".", "")) |>
   janitor::clean_names() |> 
-    distinct(incident_key, .keep_all = TRUE) |> 
-     filter(boro == "MANHATTAN")
+  distinct(incident_key, .keep_all = TRUE) |> 
+  filter(boro == "MANHATTAN",
+         !incident_key %in% c(279138121, 272105041)) |> 
+  drop_na(latitude)
+
+merged_shooting_df <- bind_rows(shooting25_df, shooting06_24_df)
 
 ```
 
+* We have 2 data sets of shooting incidents in New York City from NYC Open Data. `shooting25_df` is of shooting incidents that occurred in 2025 thus far (1/1/2025 ~ 09/30/2025). `shooting06_24_df` includes all historic shootings that occurred from 01/01/2006 to 12/31/2024. Both data sets of shooting incidents were filtered to exclude missing latitude/longitude and duplicate incidents, as in the case of multiple perpetrators or victims. We also filtered the borough (`boro`) to shooting incidents that occurred in Manhattan, as this is our location of interest. After mapping, incident_key = 279138121 and 272105041 in `shooting06_24_df` were excluded because their latitudes/longitudes don't match with the borough.
 
-```{r}
+* The `merged_shooting_df` is the merged file of both shooting data sets (`shooting25_df` and `shooting06_24_df`).
+ 
+* `parks_df` identifies property managed partially or solely by NYC Parks. We dropped the `NAs` of parks without addresses, as this is a key component of my green space analysis.
 
+# Census data API key
+
+census_api_key("959ba8ec2ff8f8bf41e4cafecc6ec9727219fe63", install = TRUE)
+
+Census API Key: 959ba8ec2ff8f8bf41e4cafecc6ec9727219fe63
+
+
+# Load Manhattan ACS population data
+
+```{r, results='hide'}
+# Download Manhattan population data with geometry
+manhattan_pop <- get_acs(
+  geography = "tract",
+  variables = "B01003_001",
+  state = "NY",
+  county = "061",
+  geometry = TRUE,
+  year = 2023
+)
 ```
 
-```{r}
+* `county = "061"` indicates Manhattan
+
+* `variables = "B01003_001"` indicates that we are requesting the total population estimate for each census tract from the ACS 5-year survey. This variable provides a count of all residents each census tract, which is useful for mapping population distribution and describing spatial relationships with parks and shooting incidents.
+
+# Geocode parks
+
+```{r, results='hide'}
+# 1. Load parks data and geocode according to census
 library(tidygeocoder)
 parks_geo <- parks_df |>
-  geocode(address, method = "census", lat = lat, long = lon)
+  geocode(address, method = "census", lat = latitude, long = longitude) 
 
 # 2. Remove rows where geocoding failed
 parks_geo_clean <- parks_geo |>
-  filter(!is.na(lat) & !is.na(lon))
+  filter(!is.na(latitude) & !is.na(longitude))
 
 # 3. Convert to sf
 parks_sf <- st_as_sf(parks_geo_clean,
-                     coords = c("lon", "lat"),
+                     coords = c("longitude", "latitude"),
                      crs = 4326)
 
 # 4. Load Census tracts for NY
@@ -82,31 +128,257 @@ parks_sf <- st_transform(parks_sf, st_crs(tracts))
 # 6. Spatial join to attach GEOID
 parks_with_geoid <- st_join(parks_sf, tracts[, "GEOID"])
 ```
+
+* `geocode()` took `address` and gave the approximate latitude (`latitude`) and longitude (`longitude`) according to the Census geocoding API. In this way, We am able to locate the approximate location of each park.
+
+* We removed parks where the geocoding failed, as this means that there is something incorrect about the address. Because we do not know if other location-based variables are incorrect, we have removed these parks from the data set.
+
+* We converted the parks data frame to an sf object (spatial data frame) using `st_as_sf()`. In this way, each row is registered as point geometry based on its latitude and longitude.
  
+* We loaded the 2023 Census tract polygons for all of New York State; these polygons have GEOIDs and boundaries from the Census.
+
+* We transformed the CRS (Coordinate Reference System) with `st_transform()` to match the CRS of the parks data to the ACS polygons in Manhattan (`manhattan_pop`). Matching CRS is necessary so that the layers align properly on maps.
+
+# Convert each shooting dataset to sf and ensure CRS match
+
 ```{r}
 
-nyc_counties <- c("061", "005", "081", "047", "085") # NY, Bronx, Queens, Kings, Richmond
-total_pop_var <- "B01003_001" # Total Population (Estimate)
+# 2025 shootings
+shootings25_sf <- shooting25_df |> 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) |> 
+  st_transform(st_crs(manhattan_pop))
 
-# 4. Download Total Population Data with Geometry
-nyc_pop_data <- get_acs(
-  geography = "tract",
-  variables = total_pop_var,
-  state = "NY",
-  county = nyc_counties,
-  geometry = TRUE,
-  year = 2023 # Use a recent ACS 5-year estimate
+# Historic shootings (2006–2024)
+shootings06_24_sf <- shooting06_24_df |> 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) |> 
+  st_transform(st_crs(manhattan_pop))
+
+# Combined shootings
+merged_shootings_sf <- merged_shooting_df |> 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) |> 
+  st_transform(st_crs(manhattan_pop))
+```
+
+* We don't need to geocode shooting data, since the latitude and longitude are already given. We just converted the shooting data frames to an sf object (spatial data frame) using `st_as_sf()`. In this way, each row is registered as point geometry.
+
+* Then, We transformed the CRS (Coordinate Reference System) with `st_transform()` to match the CRS of the shooting data to the ACS polygons in Manhattan (`manhattan_pop`). Matching CRS is necessary so that the layers align properly on maps
+
+
+# Calculate shootings per acre of park for census tracts with green space
+
+* shootings_sf → latitude/longitude locations of shootings, sf object
+
+* parks_sf → latitude/longitude locations of parks with acreages, sf object
+
+* acs_polygons → census tract boundaries for Manhattan, sf object
+
+
+```{r}
+# Function for calculate_shootings_per_acre
+calculate_shootings_per_acre <- function(shootings_sf, parks_sf, acs_polygons) {
+  
+# Assign shootings to census tracts in Manhattan
+shootings_with_geoid <- st_join(shootings_sf, acs_polygons[, "GEOID"], join = st_within)
+  
+# Aggregate total park area per census tract according to GEOID
+park_area_by_tract <- parks_with_geoid  |>
+  st_drop_geometry() |>
+  group_by(GEOID) |>
+  summarize(total_acres = sum(acres, na.rm = TRUE)) |>
+  as.data.frame()
+  
+# Count shootings per census tract
+shootings_by_tract <- shootings_with_geoid |>
+  st_drop_geometry() |>
+  group_by(GEOID) |>
+  summarize(num_shootings = n()) |>
+  as.data.frame()
+  
+# Merged file of park and shooting location data with ACS polygons of Manhattan
+
+tracts_data <- acs_polygons |>
+  left_join(park_area_by_tract, by = "GEOID") |>
+  left_join(shootings_by_tract, by = "GEOID") |>
+  mutate(total_acres = replace_na(total_acres, 0),
+        num_shootings = replace_na(num_shootings, 0),
+        shootings_per_acre = if_else(total_acres > 0,
+                                    num_shootings / total_acres,
+                                    NA_real_)
+    )
+  
+return(tracts_data)
+}
+```
+
+### Calculate shootings per acre of park in census tracts with green space for each shooting file
+
+
+```{r}
+# 2025 shootings
+tracts_data_2025 <- calculate_shootings_per_acre(shootings25_sf, 
+                                                 parks_with_geoid, manhattan_pop)
+
+# Historic shootings (2006–2024)
+tracts_data_hist <- calculate_shootings_per_acre(shootings06_24_sf, 
+                                                 parks_with_geoid, manhattan_pop)
+
+# Combined shootings
+tracts_data_merged <- calculate_shootings_per_acre(merged_shootings_sf, 
+                                                   parks_with_geoid, manhattan_pop)
+```
+
+
+### Map shooting incidents per acre of park in each census tract with some green space
+
+```{r}
+
+# 2025 shootings
+mapview(
+  tracts_data_2025,
+  zcol = "shootings_per_acre",
+  legend = TRUE,
+  layer.name = "Shootings 2025 per Acre",
+  map.types = "CartoDB.Positron",
+  col.regions = viridis::viridis(10)
 )
 
-# 5. Create the Interactive Map
-# zcol specifies the column to shade the map by (the estimate for total population)
+# Historic shootings
 mapview(
-  nyc_pop_data, 
-  zcol = "estimate", 
-  legend = TRUE, 
-  layer.name = "Total Population (ACS Est.)",
-  map.types = "CartoDB.Positron" # A clean, simple background map
+  tracts_data_hist,
+  zcol = "shootings_per_acre",
+  legend = TRUE,
+  layer.name = "Historic Shootings per Acre",
+  map.types = "CartoDB.Positron",
+  col.regions = viridis::viridis(10)
+)
+
+# Merged shootings
+mapview(
+  tracts_data_merged,
+  zcol = "shootings_per_acre",
+  legend = TRUE,
+  layer.name = "All Shootings per Acre",
+  map.types = "CartoDB.Positron",
+  col.regions = viridis::viridis(10)
+)
+```
+* For census tracts with parks acreage, the largest density of shootings per park acre are in Harlem and Upper Manhattan/West Harlem in all data sets. In the 2025 data set, there is an Census Tract 287 in Inwood has a higher density of shootings per park acre, relative to surrounding census tracts, which was not present in previous years.
+* Census tracts without park land are in `NA`.
+
+# Calculate and map density of parks (total park acreage) in each census tract in Manhattan
+
+```{r}
+# Aggregate total park area per tract
+park_area_by_tract <- parks_with_geoid  |>
+  st_drop_geometry() |>
+  group_by(GEOID) |>
+  summarize(total_acres = sum(acres, na.rm = TRUE)) |>
+  as.data.frame()
+
+tracts_parks <- manhattan_pop |>
+  left_join(park_area_by_tract, by = "GEOID") |>
+  mutate(total_acres = if_else(total_acres > 0, total_acres, NA_real_))
+
+mapview(
+  tracts_parks,
+  zcol = "total_acres",
+  legend = TRUE,
+  layer.name = "Park Acreage per Tract",
+  map.types = "CartoDB.Positron",
+  col.regions = viridis::viridis(10)
 )
 
 ```
+
+
+# Create maps for census tracts without parks
+
+```{r}
+
+# Function to calculate shootings in tracts without parks
+
+calculate_shootings_no_parks <- function(shootings_sf, tracts_parks) {
+  
+# Filter tracts without parks
+tracts_no_parks <- tracts_parks %>%
+  filter(is.na(total_acres))
+
+# Join shootings to tracts and count per GEOID
+shootings_count <- 
+  st_join(shootings_sf, tracts_no_parks[, "GEOID"], join = st_within) %>%
+  st_drop_geometry() %>%
+  group_by(GEOID) %>%
+  summarize(num_shootings = n())
+  
+# Merge counts back to tracts without parks
+tracts_no_parks <- tracts_no_parks %>%
+  left_join(shootings_count, by = "GEOID") %>%
+  mutate(num_shootings = replace_na(num_shootings, 0))
+  
+return(tracts_no_parks)
+}
+
+# List of shooting datasets
+shooting_sfs <- list(
+  "2025" = shootings25_sf,
+  "Historic" = shootings06_24_sf,
+  "All" = merged_shootings_sf
+)
+
+# Loop through datasets and create maps for tracts without parks
+no_parks_maps <- list()
+
+for (label in names(shooting_sfs)) {
+  
+# Calculate shootings for tracts without parks
+tracts_no_parks <- calculate_shootings_no_parks(shooting_sfs[[label]], tracts_parks)
+  
+# Create map
+no_parks_maps[[label]] <- mapview(
+  tracts_no_parks,
+  zcol = "num_shootings",
+  legend = TRUE,
+  layer.name = paste(label, "Shootings (No Parks)"),
+  map.types = "CartoDB.Positron",
+  col.regions = viridis::viridis(10)
+  )
+}
+
+# Maps
+no_parks_maps[["2025"]]
+no_parks_maps[["Historic"]]
+no_parks_maps[["All"]]
+
+```
+
+# Correlation tests
+
+
+Park acreage vs raw shootings across all tracts
+
+```{r}
+tracts_all <- tracts_data_merged
+
+cor.test(
+  tracts_all %>% pull(total_acres),
+  tracts_all %>% pull(num_shootings),
+  method = "spearman"
+)
+
+```
+Interestingly, park acreage and the number of shooting incidents are positively correlated with rho = 0.27, and this association is statistically significant with p-value=  1.03e-06. Since
+
+Correlation of shootings per acre vs park acreage
+
+```{r}
+tracts_with_parks <- tracts_all %>%
+  filter(total_acres > 0)
+
+cor.test(
+  tracts_with_parks %>% pull(total_acres),
+  tracts_with_parks %>% pull(shootings_per_acre),
+  method = "spearman"
+)
+```
+
 
