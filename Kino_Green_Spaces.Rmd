@@ -1,24 +1,32 @@
 ---
-title: "Kino _Green_Space"
-author: "Kino Watanabe"
-date: "2025-11-13"
-output: html_document
+title: "Green Space and Shooting Incidents in Manhattan"
+
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    
 ---
+
+![](park1.jpg)
 
 Based on published literature, we were interested in performing a descriptive analysis on green spaces and gun shooting incidents. For example, previous research by [Kondo et al.](https://pubmed.ncbi.nlm.nih.gov/28481962/) found that tree coverage had a negative association with gun assaults. In this project, we operationalized parks in NYC as a proxy for green space by aggregating the total number of park acres within each census tract in Manhattan. Shooting incident data were compiled separately for 2025 (until September), 2006–2024 historical data, and a merged dataset. For the purposes of this descriptive analysis, we created separate maps for each shooting data set for most analyses, as the 2025 data set was incomplete.
 
 We conducted three separate analyses:. 
 
-1) For census tracts with nonzero park acreage, we examined whether park acreage was associated with the density of shooting incidents. We mapped this density, calculated as shootings per park acre, across Manhattan census tracts 2025 shooting data, historic shooting data, and merged shooting data.
-2) For census tracts with no recorded park acreage, we mapped the raw number of shooting incidents across census tracts. We opted for counts, as opposed to density, because park acreage is zero.
-3) For all census tracts, regardless of park presence, we assessed whether total park acreage was correlated with the number of shooting incidents. Additionally, we conducted a separate correlation test examining the relationship between park acreage and shootings per acre.
+1) For Manhattan census tracts with nonzero park acreage, we examined whether park acreage was associated with the density of shooting incidents. We mapped this density, calculated as shootings per park acre, across Manhattan census tracts 2025 shooting data, historic shooting data, and merged shooting data. 
+2) For Manhattan census tracts with no recorded park acreage, we mapped the raw number of shooting incidents across census tracts. We opted for counts, as opposed to density, because park acreage is zero. This was part of our sensitivity analysis.
+3) For all Manhattan census tracts, regardless of park presence, we assessed whether total park acreage was correlated with the number of shooting incidents. Additionally, we conducted a separate correlation test examining the relationship between park acreage and shootings per acre.
 
-This was purely a descriptive analysis of parks and gun violence. Given the cross-sectional nature of our data, the limitations of our spatial approach, and the absence of confounder adjustment, we cannot make causal inferences about the relationship between green space and shooting incidents.
+This was purely a descriptive analysis of parks and gun violence in Manhattan. Given the cross-sectional nature of our data, the limitations of our spatial approach, and the absence of confounder adjustment, we cannot make causal inferences about the relationship between green space and shooting incidents.
 
+
+
+```{r, message = FALSE}
 
 # Load packages
 
-```{r}
 library(tidyverse)
 library(tidycensus)
 library(sf)
@@ -26,9 +34,11 @@ library(tigris)
 library(mapview)
 ```
 
-# Shooting incident data sets (2025 and Historic) and Park data set
+# Main analysis: Green space and gun shooting incidents
 
-```{r}
+**This is our descriptive analysis and visualization of our main exposure and outcome of interest for this descriptive analysis: parks and gun shooting incidence.**
+
+```{r, message = FALSE}
 parks_df =
   read_csv("Data Folder/Parks_Properties_Oct2025.csv", na = c("NA", ".", "")) |> 
   janitor::clean_names() |> 
@@ -71,44 +81,57 @@ merged_shooting_df <- bind_rows(shooting25_df, shooting06_24_df)
 
 ```
 
+## Shooting incident data sets (2025 and Historic) and Park data set
+
+**Data sets, data sources, and exclusion/inclusion criteria**
+
 * We have 2 data sets of shooting incidents in New York City from NYC Open Data. `shooting25_df` is of shooting incidents that occurred in 2025 thus far (1/1/2025 ~ 09/30/2025). `shooting06_24_df` includes all historic shootings that occurred from 01/01/2006 to 12/31/2024. Both data sets of shooting incidents were filtered to exclude missing latitude/longitude and duplicate incidents, as in the case of multiple perpetrators or victims. We also filtered the borough (`boro`) to shooting incidents that occurred in Manhattan, as this is our location of interest. After mapping, incident_key = 279138121 and 272105041 in `shooting06_24_df` were excluded because their latitudes/longitudes don't match with the borough.
 
 * The `merged_shooting_df` is the merged file of both shooting data sets (`shooting25_df` and `shooting06_24_df`).
  
 * `parks_df` identifies property managed partially or solely by NYC Parks. We dropped the `NAs` of parks without addresses, as this is a key component of my green space analysis.
 
-# Census data API key
 
-census_api_key("959ba8ec2ff8f8bf41e4cafecc6ec9727219fe63", install = TRUE)
+```{r, message=FALSE, echo=FALSE}
+### Census data API key
 
-Census API Key: 959ba8ec2ff8f8bf41e4cafecc6ec9727219fe63
+census_api_key("959ba8ec2ff8f8bf41e4cafecc6ec9727219fe63", 
+               install = TRUE, overwrite = TRUE) |> 
+  invisible()
+
+```
 
 
-# Load Manhattan ACS population data
+```{r, message = FALSE, results='hide'}
+### Load Manhattan ACS population data
 
-```{r, results='hide'}
 # Download Manhattan population data with geometry
 manhattan_pop <- get_acs(
   geography = "tract",
   variables = "B01003_001",
   state = "NY",
-  county = "061",
+  county = "061", 
   geometry = TRUE,
   year = 2023
 )
+
+###  `county = "061"` indicates Manhattan
+### `variables = "B01003_001"` indicates that we are requesting the total population estimate for each census tract from the ACS 5-year survey. This variable provides a count of all residents each census tract, which is useful for mapping population distribution and describing spatial relationships with parks and shooting incidents.
 ```
 
-* `county = "061"` indicates Manhattan
 
-* `variables = "B01003_001"` indicates that we are requesting the total population estimate for each census tract from the ACS 5-year survey. This variable provides a count of all residents each census tract, which is useful for mapping population distribution and describing spatial relationships with parks and shooting incidents.
 
-# Geocode parks
 
-```{r, results='hide'}
+```{r, message = FALSE, results='hide'}
+
+### Geocode parks
+
 # 1. Load parks data and geocode according to census
 library(tidygeocoder)
 parks_geo <- parks_df |>
-  geocode(address, method = "census", lat = latitude, long = longitude) 
+  geocode(address, method = "census", lat = latitude, long = longitude)
+
+### `geocode()` took `address` and gave the approximate latitude (`latitude`) and longitude (`longitude`) according to the Census geocoding API. In this way, We am able to locate the approximate location of each park.
 
 # 2. Remove rows where geocoding failed
 parks_geo_clean <- parks_geo |>
@@ -119,29 +142,36 @@ parks_sf <- st_as_sf(parks_geo_clean,
                      coords = c("longitude", "latitude"),
                      crs = 4326)
 
+### We converted the parks data frame to an sf object (spatial data frame) using `st_as_sf()`. In this way, each row is registered as point geometry based on its latitude and longitude.
+
 # 4. Load Census tracts for NY
 tracts <- tracts("NY", year = 2023, class = "sf")
+
+### We loaded the 2023 Census tract polygons for all of New York State; these polygons have GEOIDs and boundaries from the Census.
 
 # 5. Make sure CRS match
 parks_sf <- st_transform(parks_sf, st_crs(tracts))
 
+### We transformed the CRS (Coordinate Reference System) with `st_transform()` to match the CRS of the parks data to the ACS polygons in Manhattan (`manhattan_pop`). Matching CRS is necessary so that the layers align properly on maps.
+
+
 # 6. Spatial join to attach GEOID
 parks_with_geoid <- st_join(parks_sf, tracts[, "GEOID"])
+
+
 ```
 
-* `geocode()` took `address` and gave the approximate latitude (`latitude`) and longitude (`longitude`) according to the Census geocoding API. In this way, We am able to locate the approximate location of each park.
 
 * We removed parks where the geocoding failed, as this means that there is something incorrect about the address. Because we do not know if other location-based variables are incorrect, we have removed these parks from the data set.
 
-* We converted the parks data frame to an sf object (spatial data frame) using `st_as_sf()`. In this way, each row is registered as point geometry based on its latitude and longitude.
- 
-* We loaded the 2023 Census tract polygons for all of New York State; these polygons have GEOIDs and boundaries from the Census.
 
-* We transformed the CRS (Coordinate Reference System) with `st_transform()` to match the CRS of the parks data to the ACS polygons in Manhattan (`manhattan_pop`). Matching CRS is necessary so that the layers align properly on maps.
+```{r, message = FALSE}
+### Convert each shooting dataset to sf and ensure CRS match
 
-# Convert each shooting dataset to sf and ensure CRS match
+### We don't need to geocode shooting data, since the latitude and longitude are already given. We just converted the shooting data frames to an sf object (spatial data frame) using `st_as_sf()`. In this way, each row is registered as point geometry.
 
-```{r}
+### Then, We transformed the CRS (Coordinate Reference System) with `st_transform()` to match the CRS of the shooting data to the ACS polygons in Manhattan (`manhattan_pop`). Matching CRS is necessary so that the layers align properly on maps
+
 
 # 2025 shootings
 shootings25_sf <- shooting25_df |> 
@@ -159,21 +189,16 @@ merged_shootings_sf <- merged_shooting_df |>
   st_transform(st_crs(manhattan_pop))
 ```
 
-* We don't need to geocode shooting data, since the latitude and longitude are already given. We just converted the shooting data frames to an sf object (spatial data frame) using `st_as_sf()`. In this way, each row is registered as point geometry.
 
-* Then, We transformed the CRS (Coordinate Reference System) with `st_transform()` to match the CRS of the shooting data to the ACS polygons in Manhattan (`manhattan_pop`). Matching CRS is necessary so that the layers align properly on maps
-
-
+```{r, message = FALSE}
 # Calculate shootings per acre of park for census tracts with green space
 
-* shootings_sf → latitude/longitude locations of shootings, sf object
+### shootings_sf → latitude/longitude locations of shootings, sf object
 
-* parks_sf → latitude/longitude locations of parks with acreages, sf object
+### parks_sf → latitude/longitude locations of parks with acreages, sf object
 
-* acs_polygons → census tract boundaries for Manhattan, sf object
+### acs_polygons → census tract boundaries for Manhattan, sf object
 
-
-```{r}
 # Function for calculate_shootings_per_acre
 calculate_shootings_per_acre <- function(shootings_sf, parks_sf, acs_polygons) {
   
@@ -210,10 +235,11 @@ return(tracts_data)
 }
 ```
 
+
+```{r, message = FALSE}
+
 ### Calculate shootings per acre of park in census tracts with green space for each shooting file
 
-
-```{r}
 # 2025 shootings
 tracts_data_2025 <- calculate_shootings_per_acre(shootings25_sf, 
                                                  parks_with_geoid, manhattan_pop)
@@ -228,9 +254,11 @@ tracts_data_merged <- calculate_shootings_per_acre(merged_shootings_sf,
 ```
 
 
-### Map shooting incidents per acre of park in each census tract with some green space
+### Map shooting incidents per acre of park in each census tract **with** green space
 
-```{r}
+* Note: Census tracts without park land are in `NA`. Because approximately 40% of parks could not be geocoded and our spatial analysis relied on single point locations (rather than full park polygons), many census tracts appear to have no park acreage. Including these zero-acre tracts in the park-acreage map would visually dominate the color scale with zeros and obscure meaningful variation among tracts that do have park land. Therefore, setting these tracts to `NA` allows the map to highlight only census tracts where park acreage could be identified.
+
+```{r, warning = FALSE}
 
 # 2025 shootings
 mapview(
@@ -262,12 +290,41 @@ mapview(
   col.regions = viridis::viridis(10)
 )
 ```
-* For census tracts with parks acreage, the largest density of shootings per park acre are in Harlem and Upper Manhattan/West Harlem in all data sets. In the 2025 data set, there is an Census Tract 287 in Inwood has a higher density of shootings per park acre, relative to surrounding census tracts, which was not present in previous years.
-* Census tracts without park land are in `NA`.
 
-# Calculate and map density of parks (total park acreage) in each census tract in Manhattan
+**Interpretation** 
 
-```{r}
+* For census tracts with park acreage, the highest densities of shootings per park acre were concentrated in Harlem and Upper Manhattan/West Harlem across all datasets. In the 2025 shooting dataset, Census Tract 287 in Inwood exhibited a noticeably higher shooting per acre density compared to its surrounding tracts. This is an elevation not observed in data sets of previous years. This spike in 2025 may reflect incomplete data coverage, as the 2025 dataset includes incidents only through September. As shown in our time analysis, shooting incidents typically rise later in the year, particularly during the winter months, which may explain this apparent discrepancy. The pattern could reflect either incomplete data capture or a genuine increase in shootings in this tract. Without the complete data or comparisons between seasonality across time, we cannot distinguish between these hypotheses.
+
+
+### Map density of parks (total park acreage) in each census tract
+
+**Limitations**
+
+* This map reflects a key limitation of our spatial analysis. Out of 394 parks in Manhattan, only 273 locations (69%) had addresses in the original dataset. An additional 30 addresses were dropped because the Census library could not successfully geocode them. Consequently, only 61% of park addresses could be geocoded to identify their corresponding census tract. 
+* Our spatial analysis was further limited because we could only assign a single latitude and longitude point for each park, corresponding to its main address. In reality, this approach likely overestimated and underestimated the total park acreage within each census tract (depending on how the park boundaries fall in reality), as it does not account for the physical area of parks that may span multiple tracts. Parks that could not be geocoded underestimated the analysis.
+* As stated in the beginning of this section, the points above are the reason that we excluded census tracts without parks in this description of shooting incident density.
+
+```{r, warning=FALSE}
+# Aggregate total park area per tract
+park_area_by_tract <- parks_with_geoid  |>
+  st_drop_geometry() |>
+  group_by(GEOID) |>
+  summarize(total_acres = sum(acres, na.rm = TRUE)) |>
+  as.data.frame()
+
+tracts_parks <- manhattan_pop |>
+  left_join(park_area_by_tract, by = "GEOID") |>
+  mutate(total_acres = if_else(total_acres > 0, total_acres, NA_real_))
+
+mapview(
+  tracts_parks,
+  zcol = "total_acres",
+  legend = TRUE,
+  layer.name = "Park Acreage per Tract",
+  map.types = "CartoDB.Positron",
+  col.regions = viridis::viridis(10)
+)
+
 # Aggregate total park area per tract
 park_area_by_tract <- parks_with_geoid  |>
   st_drop_geometry() |>
@@ -290,29 +347,82 @@ mapview(
 
 ```
 
+**Interpretation**
 
-# Create maps for census tracts without parks
+* Interestingly, when comparing the census tracts with the highest park acreage to the map of shootings per acre, these tracts tend to have lower shootings per acre relative to surrounding tracts with smaller park acreage. Despite the limitations noted above, this suggests a descriptive pattern where greater park presence is associated with lower shooting density. 
 
-```{r}
+
+# Correlation tests
+
+* We ran a correlation test for park acreage versus raw shootings across all tracts and and a separate correlation test for park acreage vs shootings per park acre.
+
+### Correlation 1: Total park acreage vs. total number of shootings (all tracts)
+
+Purpose: To examine whether tracts with more park land tend to experience more or fewer shooting incidents overall. This test includes every census tract—both those with parks and those without.
+
+```{r, warning=FALSE}
+tracts_all <- tracts_data_merged
+ 
+cor.test(
+  tracts_all |> pull(total_acres),
+  tracts_all |> pull(num_shootings),
+  method = "spearman"
+  ) 
+
+
+```
+
+### Correlation 2: Park acreage vs. shootings per park acre (tracts with parks only)
+
+Purpose: To examine whether tracts with more park land have higher or lower shooting density within their available park space.
+
+```{r, warning=FALSE}
+tracts_with_parks <- tracts_all |>
+  filter(total_acres > 0)
+
+cor.test(
+  tracts_with_parks |> pull(total_acres),
+  tracts_with_parks |> pull(shootings_per_acre),
+  method = "spearman"
+)
+```
+**Main Interpretation and conclusion**
+
+* Interestingly, park acreage and the number of shooting incidents across all census tracts (including those without parks) are positively correlated with rho = 0.27, and this association is statistically significant with p-value = 1.03e-06. This suggests that presence of parks may be moderately positively correlated with gun shooting incidents. Because a large proportion of parks could not be successfully geocoded and parks spanning multiple census tracts were not fully accounted for, our analysis likely underestimates the true relationship between green space and shooting incidents. Further, this associate may reflect uncontrolled variables such as population or census tract size. 
+
+* Restricting to census tracts with parks, the correlation between park acreage and shootings per acre is a negative relationship (rho = -0.62, p = 2.63e-16), and this is consistent with prior literature that green spaces may be protective against gun violence. However, this analysis is subject to selection bias and may greatly overestimate this relationship.
+
+* Overall, our findings are descriptive and highlight spatial patterns rather than causal effects. consistent with prior literature suggesting that greater green space may be protective against gun violence.
+
+![](park2.jpg)
+
+
+# Sensitivity analysis: maps for census tracts **with** and **without** parks
+
+**Because we are missing 40% of our parks and most of our census tracts are `NA`, we also decided to describe the shooting incidents among census tracts with no park acreage. For comparison, we also created a map of census tracts with parks. To maintain comparability, both maps display raw counts of shooting incidents rather than densities.**
+
+### Map of shooting incident counts in census tracts **without** parks
+
+```{r, warning=FALSE}
 
 # Function to calculate shootings in tracts without parks
 
 calculate_shootings_no_parks <- function(shootings_sf, tracts_parks) {
   
 # Filter tracts without parks
-tracts_no_parks <- tracts_parks %>%
+tracts_no_parks <- tracts_parks |>
   filter(is.na(total_acres))
 
 # Join shootings to tracts and count per GEOID
 shootings_count <- 
-  st_join(shootings_sf, tracts_no_parks[, "GEOID"], join = st_within) %>%
-  st_drop_geometry() %>%
-  group_by(GEOID) %>%
+  st_join(shootings_sf, tracts_no_parks[, "GEOID"], join = st_within) |>
+  st_drop_geometry() |>
+  group_by(GEOID) |>
   summarize(num_shootings = n())
   
 # Merge counts back to tracts without parks
-tracts_no_parks <- tracts_no_parks %>%
-  left_join(shootings_count, by = "GEOID") %>%
+tracts_no_parks <- tracts_no_parks |>
+  left_join(shootings_count, by = "GEOID") |>
   mutate(num_shootings = replace_na(num_shootings, 0))
   
 return(tracts_no_parks)
@@ -351,34 +461,54 @@ no_parks_maps[["All"]]
 
 ```
 
-# Correlation tests
 
+### Map of shooting incident counts in census tracts **with** parks
 
-Park acreage vs raw shootings across all tracts
+```{r, warning=FALSE}
+calculate_shootings_with_parks <- function(shootings_sf, tracts_parks) {
+  
+# Filter tracts WITH parks
+tracts_with_parks <- tracts_parks |>
+  filter(!is.na(total_acres))
+  
+# Spatial join shootings to park tracts
+shootings_count <- 
+  st_join(shootings_sf, tracts_with_parks[, "GEOID"], join = st_within) |>
+  st_drop_geometry() |>
+  group_by(GEOID) |>
+  summarize(num_shootings = n())
+  
+  # Merge counts back onto tracts
+tracts_with_parks <- tracts_with_parks |>
+  left_join(shootings_count, by = "GEOID") |>
+  mutate(num_shootings = replace_na(num_shootings, 0))
+  
+return(tracts_with_parks)
+}
 
-```{r}
-tracts_all <- tracts_data_merged
+# Loop through datasets and create maps for tracts WITH parks
+with_parks_maps <- list()
 
-cor.test(
-  tracts_all %>% pull(total_acres),
-  tracts_all %>% pull(num_shootings),
-  method = "spearman"
-)
+for (label in names(shooting_sfs)) {
+  
+tracts_with_parks <- calculate_shootings_with_parks(shooting_sfs[[label]], tracts_parks)
+  
+with_parks_maps[[label]] <- mapview(
+  tracts_with_parks,
+  zcol = "num_shootings",
+  legend = TRUE,
+  layer.name = paste(label, "Shootings (With Parks)"),
+  map.types = "CartoDB.Positron",
+  col.regions = viridis::viridis(10)
+  )
+}
+
+# View maps
+with_parks_maps[["2025"]]
+with_parks_maps[["Historic"]]
+with_parks_maps[["All"]]
 
 ```
-Interestingly, park acreage and the number of shooting incidents are positively correlated with rho = 0.27, and this association is statistically significant with p-value=  1.03e-06. Since
+**Interpretation**
 
-Correlation of shootings per acre vs park acreage
-
-```{r}
-tracts_with_parks <- tracts_all %>%
-  filter(total_acres > 0)
-
-cor.test(
-  tracts_with_parks %>% pull(total_acres),
-  tracts_with_parks %>% pull(shootings_per_acre),
-  method = "spearman"
-)
-```
-
-
+* While we cannot directly compare these maps to the shootings-per-acre map (differing units), we can observe that upper Manhattan, including Harlem and Inwood, have a higher number of shooting incidents relative to mid- and lower Manhattan census tracts, regardless of park presence. This supports our reasoning as to why park acreage and the number of shooting incidents across all census tracts (including those without parks) are positively correlated with rho = 0.27. The positive correlation may simply reflect underlying geographic clustering of both parks and shootings rather than a meaningful relationship between green space and violence.
