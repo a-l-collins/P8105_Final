@@ -1,0 +1,16 @@
+# Data files (share offline with collaborators)
+Data folder/
+*.csv
+
+
+
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user
+
+# Mac system files
+.DS_Store
+
+
